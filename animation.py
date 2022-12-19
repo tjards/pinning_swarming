@@ -17,7 +17,7 @@ Writer = animation.writers['ffmpeg']
 writer = Writer(fps=15, metadata=dict(artist='Me'), bitrate=1800)
 
 numFrames = 20 # frame rate (bigger = slower)
-tail = 100
+tail = 20
 zoom = 1    # do you want to adjust frames with motion? [0 = no, 1 = yes, 2 = fixed (set below), 3 = fixed_zoom (set below) ]
 
 #def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, walls_plots, showObs, centroid_all, f, r_desired, tactic_type):
@@ -28,7 +28,7 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, walls
     # ------------------
     nVeh = states_all.shape[2]
     nObs = obstacles_all.shape[2]
-    r_copy = 5 # used to import this
+    r_copy = -1 # used to import this
     
     # intermediate variables
     # ----------------------
@@ -41,7 +41,7 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, walls
     x_v = states_all[:,3,:]
     y_v = states_all[:,4,:]
     z_v = states_all[:,5,:]
-    head = 0.2
+    head = 0.02
     x_head = states_all[:,0,:] + head*x_v
     y_head = states_all[:,1,:] + head*x_v
     z_head = states_all[:,2,:] + head*x_v
@@ -142,7 +142,7 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, walls
         lines_heads.extend(line_head)
         line_target = ax.plot([], [], [], 'gx')
         lines_targets.extend(line_target)       
-        #lattice = ax.plot([], [], [], ':', lw=1, color=[0.5,0.5,0.5])
+        #lattice = ax.plot([], [], [], '-', lw=1, color=[0.5,0.5,0.5])
         lattice = ax.plot([], [], [], ':', lw=1, color='blue')
         lattices.extend(lattice)
 
@@ -157,6 +157,7 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, walls
     # update the lines
     # ----------------
     def update(i):
+        
              
         time = t_all[i*numFrames]
         x = states_all[i*numFrames,0,:]
@@ -227,14 +228,15 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, walls
         # else: 
         #     r_ = r_copy*2        # just to help visualize vehicle interactions
         
-        r_ = 0*r_copy 
+        r_ = r_copy
         
         for j in range (0, nVeh):
         
             temp_lat = lattices[j]    
         
             # search through each neighbour
-            for k_neigh in range(pos.shape[1]):
+            #for k_neigh in range(pos.shape[1]):
+            for k_neigh in range(0,nVeh):
                 # except for itself (duh):
                 if j != k_neigh:
                     # compute the euc distance between them
@@ -244,6 +246,9 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, walls
                         x_lat[k_neigh,j] = pos[0,k_neigh]
                         y_lat[k_neigh,j] = pos[1,k_neigh]
                         z_lat[k_neigh,j] = pos[2,k_neigh]
+                        #x_lat[j,k_neigh] = pos[0,k_neigh]
+                        #y_lat[j,k_neigh] = pos[1,k_neigh]
+                        #z_lat[j,k_neigh] = pos[2,k_neigh]
                     else:
                         x_lat[k_neigh,j] = pos[0,j]
                         y_lat[k_neigh,j] = pos[1,j]
@@ -251,10 +256,13 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, walls
                 else:
                     x_lat[k_neigh,j] = pos[0,j]
                     y_lat[k_neigh,j] = pos[1,j]
-                    z_lat[k_neigh,j] = pos[2,j]                     
+                    z_lat[k_neigh,j] = pos[2,j]                                              
             
             temp_lat.set_data(x_lat[:,j], y_lat[:,j])
-            temp_lat.set_3d_properties(z_lat[:,j])   
+            temp_lat.set_3d_properties(z_lat[:,j])          
+
+        #temp_lat.set_data(x_lat[:,:].flatten(), y_lat[:,:].flatten())
+        #temp_lat.set_3d_properties(z_lat[:,:].flatten())   
   
         # plot states... etc
         # ------------------

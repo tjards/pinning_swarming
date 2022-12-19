@@ -56,7 +56,7 @@ import modeller
 #%% Setup Simulation
 # ------------------
 Ti      =   0         # initial time
-Tf      =   120        # final time 
+Tf      =   30        # final time 
 Ts      =   0.02      # sample time
 nVeh    =   7         # number of vehicles
 iSpread =   5         # initial spread of vehicles
@@ -78,7 +78,7 @@ else:
     targetObs = 0         
     
 # do we want to build a model in real time?
-real_time_model = 'yes'
+#real_time_model = 'yes'
 
 # Vehicles states
 # ---------------
@@ -115,8 +115,8 @@ error = state[0:3,:] - targets[0:3,:]
 # ----------------
 params = np.zeros((4,nVeh))  # store dynamic parameters
 # do I want to model in realtime?
-if real_time_model == 'yes':
-    swarm_model = modeller.model()
+#if real_time_model == 'yes':
+#    swarm_model = modeller.model()
 
 
 #%% Define obstacles (kind of a manual process right now)
@@ -252,7 +252,6 @@ while round(t,3) < Tf:
     # modeller: load the current states (x,v), centroid states (x,v) and inputs (of the first agent)
     # -------------------------------------------------------------------------------
     #swarm_model.update_stream_x(np.concatenate((np.array(state[0:6,0],ndmin=2).transpose(),centroid, centroid_v, np.array(cmd[0:3,0],ndmin=2).transpose()),axis=0))
-    swarm_model.update_stream_x(np.concatenate((np.array(state[0:6,0],ndmin=2).transpose(),centroid, centroid_v, np.array(cmd[0:3,0],ndmin=2).transpose()),axis=0))
 
 
     # Evolve the states
@@ -311,11 +310,11 @@ while round(t,3) < Tf:
         
     # load the updated centroid states (x,v)
     # ---------------------------------------
-    swarm_model.update_stream_y(np.concatenate((np.array(state[0:6,0],ndmin=2).transpose(),centroid, centroid_v),axis=0))
-    if swarm_model.count_y >= swarm_model.desired_size:
-        swarm_model.fit()
-        swarm_model.count_x    = -1
-        swarm_model.count_y    = -1
+    #swarm_model.update_stream_y(np.concatenate((np.array(state[0:6,0],ndmin=2).transpose(),centroid, centroid_v),axis=0))
+    #if swarm_model.count_y >= swarm_model.desired_size:
+    #    swarm_model.fit()
+    #    swarm_model.count_x    = -1
+    #    swarm_model.count_y    = -1
 
     
     # Add other vehicles as obstacles (optional, default = 0)
@@ -332,6 +331,7 @@ while round(t,3) < Tf:
        
 #%% Produce animation of simulation
 # ---------------------------------
+#print('here1')
 showObs = 1 # (0 = don't show obstacles, 1 = show obstacles, 2 = show obstacles + floors/walls)
 ani = animation.animateMe(Ts, t_all, states_all, cmds_all, targets_all[:,0:3,:], obstacles_all, walls_plots, showObs, centroid_all, f_all, tactic_type)    
 
