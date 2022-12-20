@@ -56,10 +56,10 @@ import modeller
 #%% Setup Simulation
 # ------------------
 Ti      =   0         # initial time
-Tf      =   30        # final time 
+Tf      =   60        # final time 
 Ts      =   0.02      # sample time
-nVeh    =   7         # number of vehicles
-iSpread =   5         # initial spread of vehicles
+nVeh    =   25         # number of vehicles
+iSpread =   10         # initial spread of vehicles
 tSpeed  =   0.05         # speed of target
 rVeh    =   1         # physical radius of vehicle 
 

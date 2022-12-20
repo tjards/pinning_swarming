@@ -28,7 +28,7 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, walls
     # ------------------
     nVeh = states_all.shape[2]
     nObs = obstacles_all.shape[2]
-    r_copy = -1 # used to import this
+    r_copy = 2 # used to import this
     
     # intermediate variables
     # ----------------------
@@ -188,9 +188,12 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, walls
         z_o = obstacles_all[i*numFrames,2,:]
         r_o = obstacles_all[i*numFrames,3,:]        
         pos = states_all[i*numFrames,0:3,:]
-        x_lat = np.zeros((nVeh,nVeh))
-        y_lat = np.zeros((nVeh,nVeh))
-        z_lat = np.zeros((nVeh,nVeh))
+        #x_lat = np.zeros((nVeh,nVeh))
+        #y_lat = np.zeros((nVeh,nVeh))
+        #z_lat = np.zeros((nVeh,nVeh))
+        x_lat = np.zeros((2*nVeh,nVeh))
+        y_lat = np.zeros((2*nVeh,nVeh))
+        z_lat = np.zeros((2*nVeh,nVeh))
         cx = centroid_all[i*numFrames,0,:]
         cy = centroid_all[i*numFrames,1,:]
         cz = centroid_all[i*numFrames,2,:]
@@ -232,7 +235,16 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, walls
         
         for j in range (0, nVeh):
         
-            temp_lat = lattices[j]    
+            temp_lat = lattices[j]
+            
+            # do this upfront, rather than in
+            #x_lat[0::2,:] = pos[0,:]
+            #x_lat[1::2,:] = pos[0,:]
+            #y_lat[0::2,:] = pos[1,:]
+            #y_lat[1::2,:] = pos[1,:]
+            #z_lat[0::2,:] = pos[2,:]
+            #z_lat[1::2,:] = pos[2,:]
+            
         
             # search through each neighbour
             #for k_neigh in range(pos.shape[1]):
@@ -243,26 +255,44 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, walls
                     dist = np.linalg.norm(pos[:,j]-pos[:,k_neigh])
                     # if it is within the interaction range
                     if dist <= r_: 
-                        x_lat[k_neigh,j] = pos[0,k_neigh]
-                        y_lat[k_neigh,j] = pos[1,k_neigh]
-                        z_lat[k_neigh,j] = pos[2,k_neigh]
-                        #x_lat[j,k_neigh] = pos[0,k_neigh]
-                        #y_lat[j,k_neigh] = pos[1,k_neigh]
-                        #z_lat[j,k_neigh] = pos[2,k_neigh]
+                        #x_lat[k_neigh,j] = pos[0,k_neigh]
+                        #y_lat[k_neigh,j] = pos[1,k_neigh]
+                        #z_lat[k_neigh,j] = pos[2,k_neigh]
+                        # first, itself
+                        x_lat[2*k_neigh,j] = pos[0,j]
+                        y_lat[2*k_neigh,j] = pos[1,j]
+                        z_lat[2*k_neigh,j] = pos[2,j]
+                        # then it's neighbour
+                        x_lat[2*k_neigh+1,j] = pos[0,k_neigh]
+                        y_lat[2*k_neigh+1,j] = pos[1,k_neigh]
+                        z_lat[2*k_neigh+1,j] = pos[2,k_neigh]
                     else:
-                        x_lat[k_neigh,j] = pos[0,j]
-                        y_lat[k_neigh,j] = pos[1,j]
-                        z_lat[k_neigh,j] = pos[2,j]
+                        #x_lat[k_neigh,j] = pos[0,j]
+                        #y_lat[k_neigh,j] = pos[1,j]
+                        #z_lat[k_neigh,j] = pos[2,j]
+                        x_lat[2*k_neigh:2*k_neigh+2,j] = pos[0,j]
+                        y_lat[2*k_neigh:2*k_neigh+2,j] = pos[1,j]
+                        z_lat[2*k_neigh:2*k_neigh+2,j] = pos[2,j]
+                        #print('too far')
                 else:
-                    x_lat[k_neigh,j] = pos[0,j]
-                    y_lat[k_neigh,j] = pos[1,j]
-                    z_lat[k_neigh,j] = pos[2,j]                                              
+                    #x_lat[k_neigh,j] = pos[0,j]
+                    #y_lat[k_neigh,j] = pos[1,j]
+                    #z_lat[k_neigh,j] = pos[2,j] 
+                    x_lat[2*k_neigh:2*k_neigh+2,j] = pos[0,j]
+                    y_lat[2*k_neigh:2*k_neigh+2,j] = pos[1,j]
+                    z_lat[2*k_neigh:2*k_neigh+2,j] = pos[2,j]  
+                    #print('myself')                                            
+                                                         
             
-            temp_lat.set_data(x_lat[:,j], y_lat[:,j])
-            temp_lat.set_3d_properties(z_lat[:,j])          
+            #temp_lat.set_data(x_lat[:,j], y_lat[:,j])
+            #temp_lat.set_3d_properties(z_lat[:,j])  
+        #temp_lat.set_data(x_lat[:,j], y_lat[:,j])
+        #temp_lat.set_3d_properties(z_lat[:,j])  
 
         #temp_lat.set_data(x_lat[:,:].flatten(), y_lat[:,:].flatten())
         #temp_lat.set_3d_properties(z_lat[:,:].flatten())   
+        temp_lat.set_data(x_lat[:,:].transpose().flatten(), y_lat[:,:].transpose().flatten())
+        temp_lat.set_3d_properties(z_lat[:,:].transpose().flatten())
   
         # plot states... etc
         # ------------------
