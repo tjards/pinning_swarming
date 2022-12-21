@@ -60,8 +60,8 @@ import pinning_tools
 Ti      =   0         # initial time
 Tf      =   120        # final time 
 Ts      =   0.02      # sample time
-nVeh    =   17         # number of vehicles
-iSpread =   30         # initial spread of vehicles
+nVeh    =   15         # number of vehicles
+iSpread =   40         # initial spread of vehicles
 tSpeed  =   0         # speed of target
 rVeh    =   0.5         # physical radius of vehicle 
 

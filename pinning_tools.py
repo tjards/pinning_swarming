@@ -44,12 +44,12 @@ d_prime = 0.6*7     #0.5 #0.6*d    # desired separation
 r_prime = 1.2*0.6*7     #2*2*d_prime   # range at which obstacles can be sensed
 
 # gains
-c1_a = 2
-c2_a = 2*np.sqrt(2)
+c1_a = 1
+c2_a = 2*np.sqrt(1)
 c1_b = 3
 c2_b = 2*np.sqrt(3)
-c1_g = 1
-c2_g = 2*np.sqrt(1)
+c1_g = 2
+c2_g = 2*np.sqrt(2)
 
 #%% Kronrcker product (demo)
 # ------------------------
