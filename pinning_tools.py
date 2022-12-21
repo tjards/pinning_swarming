@@ -38,10 +38,10 @@ data = np.load('Data/state_25.npy') # 25 nodes, 6 states [x,y,z,vx,vy,vz]
 # -----------------
 
 # key ranges 
-d       = 5             # lattice scale 
-r       = 10    #20*d           # range at which neighbours can be sensed 
-d_prime = 0.6     #0.5 #0.6*d    # desired separation 
-r_prime = 1.2     #2*2*d_prime   # range at which obstacles can be sensed
+d       = 7             # lattice scale 
+r       = 1.2*7    #20*d           # range at which neighbours can be sensed 
+d_prime = 0.6*7     #0.5 #0.6*d    # desired separation 
+r_prime = 1.2*0.6*7     #2*2*d_prime   # range at which obstacles can be sensed
 
 # gains
 c1_a = 2
@@ -61,12 +61,12 @@ c2_g = 2*np.sqrt(1)
 # -----------------
 
 # constants for later functions
-a   = 0.5
-b   = 0.5
+a   = 5
+b   = 5
 c   = np.divide(np.abs(a-b),np.sqrt(4*a*b)) 
 eps = 0.1
 #eps = 0.5
-h   = 0.9
+h   = 0.2
 pi  = 3.141592653589793
 
 
@@ -210,8 +210,8 @@ def compute_aug_lap_matrix(L,P,gamma,rho):
 def compute_cmd_a(states_q, states_p, targets, targets_v, k_node):
     
     # initialize 
-    r_a = r #sigma_norm(r)                         # lattice separation (sensor range)
-    d_a = d #sigma_norm(d)                         # lattice separation (goal)   
+    r_a = sigma_norm(r)                         # lattice separation (sensor range)
+    d_a = sigma_norm(d)                         # lattice separation (goal)   
     u_int = np.zeros((3,states_q.shape[1]))     # interactions
          
     # search through each neighbour
@@ -221,7 +221,7 @@ def compute_cmd_a(states_q, states_p, targets, targets_v, k_node):
             # compute the euc distance between them
             dist = np.linalg.norm(states_q[:,k_node]-states_q[:,k_neigh])
             # if it is within the interaction range
-            if dist < r:
+            if dist < r_a:
                 # compute the interaction command
                 u_int[:,k_node] += c1_a*phi_a(states_q[:,k_node],states_q[:,k_neigh],r_a, d_a)*n_ij(states_q[:,k_node],states_q[:,k_neigh]) + c2_a*a_ij(states_q[:,k_node],states_q[:,k_neigh],r_a)*(states_p[:,k_neigh]-states_p[:,k_node]) 
 
@@ -233,7 +233,7 @@ def compute_cmd_a(states_q, states_p, targets, targets_v, k_node):
 def compute_cmd_b(states_q, states_p, obstacles, walls, k_node):
       
     # initialize 
-    d_b = d_prime #sigma_norm(d_prime)                   # obstacle separation (goal range)
+    d_b = sigma_norm(d_prime)                   # obstacle separation (goal range)
     u_obs = np.zeros((3,states_q.shape[1]))     # obstacles 
     
     # Obstacle Avoidance term (phi_beta)

@@ -106,6 +106,9 @@ def commands(states_q, states_p, obstacles, walls, targets, targets_v, targets_e
             # compute command 
             cmd_i[:,k_node], params = starling_tools.compute_cmd(targets, centroid, states_q, states_p, k_node, params, 0.02)
         
+        
+        # Pinning
+        # --------
         if tactic_type == 'pinning':
             
             cmd_i[:,k_node] = pinning_tools.compute_cmd(centroid, states_q, states_p, obstacles, walls, targets, targets_v, k_node, pin_matrix)

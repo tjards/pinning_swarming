@@ -28,7 +28,7 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, walls
     # ------------------
     nVeh = states_all.shape[2]
     nObs = obstacles_all.shape[2]
-    r_copy = 5 # used to import this
+    r_copy = 1.5*7 # used to import this
     
     # intermediate variables
     # ----------------------

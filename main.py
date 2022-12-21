@@ -58,9 +58,9 @@ import pinning_tools
 #%% Setup Simulation
 # ------------------
 Ti      =   0         # initial time
-Tf      =   90        # final time 
+Tf      =   120        # final time 
 Ts      =   0.02      # sample time
-nVeh    =   7         # number of vehicles
+nVeh    =   17         # number of vehicles
 iSpread =   30         # initial spread of vehicles
 tSpeed  =   0         # speed of target
 rVeh    =   0.5         # physical radius of vehicle 
