@@ -308,10 +308,6 @@ def select_pins(states_q):
     pin_matrix = np.zeros((states_q.shape[1],states_q.shape[1]))
     index = random.randint(0,states_q.shape[1])-1
     pin_matrix[index,index]=1
-    index = random.randint(0,states_q.shape[1])-1
-    pin_matrix[index,index]=1
-    index = random.randint(0,states_q.shape[1])-1
-    pin_matrix[index,index]=1
     
     return pin_matrix
 
