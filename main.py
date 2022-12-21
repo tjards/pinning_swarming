@@ -60,9 +60,9 @@ import pinning_tools
 Ti      =   0         # initial time
 Tf      =   120        # final time 
 Ts      =   0.02      # sample time
-nVeh    =   15         # number of vehicles
+nVeh    =   27         # number of vehicles
 iSpread =   40         # initial spread of vehicles
-tSpeed  =   0         # speed of target
+tSpeed  =   0.02         # speed of target
 rVeh    =   0.5         # physical radius of vehicle 
 
 tactic_type = 'pinning'     
