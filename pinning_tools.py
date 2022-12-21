@@ -210,8 +210,8 @@ def compute_aug_lap_matrix(L,P,gamma,rho):
 def compute_cmd_a(states_q, states_p, targets, targets_v, k_node):
     
     # initialize 
-    r_a = sigma_norm(r)                         # lattice separation (sensor range)
-    d_a = sigma_norm(d)                         # lattice separation (goal)   
+    r_a = r #sigma_norm(r)                         # lattice separation (sensor range)
+    d_a = d #sigma_norm(d)                         # lattice separation (goal)   
     u_int = np.zeros((3,states_q.shape[1]))     # interactions
          
     # search through each neighbour
@@ -221,7 +221,7 @@ def compute_cmd_a(states_q, states_p, targets, targets_v, k_node):
             # compute the euc distance between them
             dist = np.linalg.norm(states_q[:,k_node]-states_q[:,k_neigh])
             # if it is within the interaction range
-            if dist < r_a:
+            if dist < r:
                 # compute the interaction command
                 u_int[:,k_node] += c1_a*phi_a(states_q[:,k_node],states_q[:,k_neigh],r_a, d_a)*n_ij(states_q[:,k_node],states_q[:,k_neigh]) + c2_a*a_ij(states_q[:,k_node],states_q[:,k_neigh],r_a)*(states_p[:,k_neigh]-states_p[:,k_node]) 
 
@@ -233,7 +233,7 @@ def compute_cmd_a(states_q, states_p, targets, targets_v, k_node):
 def compute_cmd_b(states_q, states_p, obstacles, walls, k_node):
       
     # initialize 
-    d_b = sigma_norm(d_prime)                   # obstacle separation (goal range)
+    d_b = d_prime #sigma_norm(d_prime)                   # obstacle separation (goal range)
     u_obs = np.zeros((3,states_q.shape[1]))     # obstacles 
     
     # Obstacle Avoidance term (phi_beta)
