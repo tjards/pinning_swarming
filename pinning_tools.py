@@ -304,6 +304,7 @@ def compute_cmd_g(states_q, states_p, targets, targets_v, k_node, pin_matrix):
 
 
 # select pins
+# -----------
 def select_pins(states_q):
     pin_matrix = np.zeros((states_q.shape[1],states_q.shape[1]))
     index = random.randint(0,states_q.shape[1])-1
@@ -315,6 +316,8 @@ def select_pins(states_q):
     
     return pin_matrix
 
+# consolidated control signals
+# ----------------------------
 def compute_cmd(centroid, states_q, states_p, obstacles, walls, targets, targets_v, k_node, pin_matrix):
     
     # initialize 
@@ -330,18 +333,39 @@ def compute_cmd(centroid, states_q, states_p, obstacles, walls, targets, targets
     cmd_i[:,k_node] = u_int + u_obs + u_nav
     
     return cmd_i[:,k_node]
-         
-         
-# # %%try it
-# # ---------
-# r = 2         # range to be considered a neighbour 
-# gamma   = 1   # coupling strength
-# rho     = 1   # pinning strength
-# A = compute_adj_matrix(data, r)  
-# D = compute_deg_matrix(data, r)   
-# L = compute_lap_matrix(A,D)   
-# nComp = compute_comp(L) 
 
+#%% compute the controlability matrix
+# ---------------------------------
+def func_ctrlb(Ai,Bi):
+    A = np.mat(Ai)
+    B = np.mat(Bi).transpose()
+    n = A.shape[0]
+    ctrlb = B
+    for i in range(1,n):
+        ctrlb = np.hstack((ctrlb,A**i*B))
+    return ctrlb
+        
+        
+    
+         
+         
+# %%try it
+# ---------
+r = 2         # range to be considered a neighbour 
+gamma   = 1   # coupling strength
+rho     = 1   # pinning strength
+A = compute_adj_matrix(data, r)  
+D = compute_deg_matrix(data, r)   
+L = compute_lap_matrix(A,D)   
+nComp = compute_comp(L) 
+
+B = np.zeros((A.shape[0]))
+B[1] = 1
+# compute controlability matrix
+Ctrlb = func_ctrlb(A,B)
+# find rank 
+rank = np.linalg.matrix_rank(Ctrlb)
+trace= np.matrix.trace(Ctrlb)
 
 # # let us set pin (manually)
 # # -------------------------
