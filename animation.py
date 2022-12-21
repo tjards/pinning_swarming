@@ -338,8 +338,8 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, walls
             if tactic_type == 'pinning':
             
                 if pin_matrix[j,j] == 1:
-                    temp1.set_color('g')
-                    temp2.set_color('g') 
+                    temp1.set_color('r')
+                    temp2.set_color('r') 
                 else:
                     temp1.set_color('b')
                     temp2.set_color('b')

@@ -40,17 +40,16 @@ data = np.load('Data/state_25.npy') # 25 nodes, 6 states [x,y,z,vx,vy,vz]
 # key ranges 
 d       = 5             # lattice scale 
 r       = 10    #20*d           # range at which neighbours can be sensed 
-d_prime = 0.5     #0.5 #0.6*d    # desired separation 
-r_prime = 1     #2*2*d_prime   # range at which obstacles can be sensed
+d_prime = 0.6     #0.5 #0.6*d    # desired separation 
+r_prime = 1.2     #2*2*d_prime   # range at which obstacles can be sensed
 
 # gains
-c1_a = 2                # adjacency
+c1_a = 2
 c2_a = 2*np.sqrt(2)
-c1_b = 3                # obstacle avoidance
+c1_b = 3
 c2_b = 2*np.sqrt(3)
-c1_g = 3                # navigation (by pins)
-c2_g = 0*np.sqrt(1)
-
+c1_g = 1
+c2_g = 2*np.sqrt(1)
 
 #%% Kronrcker product (demo)
 # ------------------------
@@ -70,7 +69,7 @@ eps = 0.1
 h   = 0.9
 pi  = 3.141592653589793
 
-eps = 0.1
+
 def sigma_norm(z):    
     norm_sig = (1/eps)*(np.sqrt(1+eps*np.linalg.norm(z)**2)-1)
     return norm_sig
@@ -222,7 +221,7 @@ def compute_cmd_a(states_q, states_p, targets, targets_v, k_node):
             # compute the euc distance between them
             dist = np.linalg.norm(states_q[:,k_node]-states_q[:,k_neigh])
             # if it is within the interaction range
-            if dist < r:
+            if dist < r_a:
                 # compute the interaction command
                 u_int[:,k_node] += c1_a*phi_a(states_q[:,k_node],states_q[:,k_neigh],r_a, d_a)*n_ij(states_q[:,k_node],states_q[:,k_neigh]) + c2_a*a_ij(states_q[:,k_node],states_q[:,k_neigh],r_a)*(states_p[:,k_neigh]-states_p[:,k_node]) 
 
@@ -309,10 +308,14 @@ def select_pins(states_q):
     pin_matrix = np.zeros((states_q.shape[1],states_q.shape[1]))
     index = random.randint(0,states_q.shape[1])-1
     pin_matrix[index,index]=1
+    index = random.randint(0,states_q.shape[1])-1
+    pin_matrix[index,index]=1
+    index = random.randint(0,states_q.shape[1])-1
+    pin_matrix[index,index]=1
     
     return pin_matrix
 
-def compute_cmd(states_q, states_p, obstacles, walls, targets, targets_v, k_node, pin_matrix):
+def compute_cmd(centroid, states_q, states_p, obstacles, walls, targets, targets_v, k_node, pin_matrix):
     
     # initialize 
     cmd_i = np.zeros((3,states_q.shape[1]))
@@ -320,7 +323,10 @@ def compute_cmd(states_q, states_p, obstacles, walls, targets, targets_v, k_node
     u_int = compute_cmd_a(states_q, states_p, targets, targets_v, k_node)
     u_obs = compute_cmd_b(states_q, states_p, obstacles, walls, k_node)
     u_nav = compute_cmd_g(states_q, states_p, targets, targets_v, k_node, pin_matrix)
-     
+    
+    # temp: just nudge all towards centroid, for stability, until I figure this out
+    #u_nav += 0.01*c1_g*sigma_1(states_q[:,k_node]-centroid[:,0])
+    
     cmd_i[:,k_node] = u_int + u_obs + u_nav
     
     return cmd_i[:,k_node]

@@ -108,7 +108,9 @@ def commands(states_q, states_p, obstacles, walls, targets, targets_v, targets_e
         
         if tactic_type == 'pinning':
             
-            cmd_i[:,k_node] = pinning_tools.compute_cmd(states_q, states_p, obstacles, walls, targets, targets_v, k_node, pin_matrix)
+            cmd_i[:,k_node] = pinning_tools.compute_cmd(centroid, states_q, states_p, obstacles, walls, targets, targets_v, k_node, pin_matrix)
+            
+            
             
         # Mixer
         # -----         

@@ -60,10 +60,10 @@ import pinning_tools
 Ti      =   0         # initial time
 Tf      =   90        # final time 
 Ts      =   0.02      # sample time
-nVeh    =   17         # number of vehicles
-iSpread =   5         # initial spread of vehicles
-tSpeed  =   0.05         # speed of target
-rVeh    =   1         # physical radius of vehicle 
+nVeh    =   12         # number of vehicles
+iSpread =   30         # initial spread of vehicles
+tSpeed  =   0.01         # speed of target
+rVeh    =   0.5         # physical radius of vehicle 
 
 tactic_type = 'pinning'     
                 # reynolds = Reynolds flocking + Olfati-Saber obstacle
@@ -233,9 +233,9 @@ while round(t,3) < Tf:
     
     # Evolve the target
     # -----------------
-    targets[0,:] = 10*np.sin(tSpeed*t)                 # targets[0,:] + tSpeed*0.002
-    targets[1,:] = 10*np.sin(tSpeed*t)*np.cos(tSpeed*t)  # targets[1,:] + tSpeed*0.005
-    targets[2,:] = 10*np.sin(tSpeed*t)*np.sin(tSpeed*t)+15  # targets[2,:] + tSpeed*0.0005
+    targets[0,:] = 100*np.sin(tSpeed*t)                 # targets[0,:] + tSpeed*0.002
+    targets[1,:] = 100*np.sin(tSpeed*t)*np.cos(tSpeed*t)  # targets[1,:] + tSpeed*0.005
+    targets[2,:] = 100*np.sin(tSpeed*t)*np.sin(tSpeed*t)+15  # targets[2,:] + tSpeed*0.0005
     
     # For pinning application, we set the first agent as the "pin",
     # which means all other targets have to be set to the pin
