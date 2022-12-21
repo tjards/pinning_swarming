@@ -28,7 +28,7 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, walls
     # ------------------
     nVeh = states_all.shape[2]
     nObs = obstacles_all.shape[2]
-    r_copy = 3 # used to import this
+    r_copy = 5 # used to import this
     
     # intermediate variables
     # ----------------------
@@ -88,7 +88,7 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, walls
     # ------
         
     if tactic_type == 'reynolds' or tactic_type == 'saber' or tactic_type == 'starling' or tactic_type == 'pinning':
-        mode='Mode: Flocking type: '+tactic_type
+        mode='Mode: '+tactic_type
     elif tactic_type == 'circle':
         mode = 'Mode: Dynamic Encirclement'
     elif tactic_type == 'lemni':

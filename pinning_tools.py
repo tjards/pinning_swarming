@@ -28,6 +28,7 @@ References:
 """
 
 import numpy as np
+import random
 
 # data set for testing 
 data = np.load('Data/state_25.npy') # 25 nodes, 6 states [x,y,z,vx,vy,vz]
@@ -37,18 +38,19 @@ data = np.load('Data/state_25.npy') # 25 nodes, 6 states [x,y,z,vx,vy,vz]
 # -----------------
 
 # key ranges 
-d       = 3             # lattice scale 
-r       = 100    #20*d           # range at which neighbours can be sensed 
+d       = 5             # lattice scale 
+r       = 10    #20*d           # range at which neighbours can be sensed 
 d_prime = 0.5     #0.5 #0.6*d    # desired separation 
-r_prime = 2     #2*2*d_prime   # range at which obstacles can be sensed
+r_prime = 1     #2*2*d_prime   # range at which obstacles can be sensed
 
 # gains
 c1_a = 2                # adjacency
 c2_a = 2*np.sqrt(2)
 c1_b = 3                # obstacle avoidance
 c2_b = 2*np.sqrt(3)
-c1_g = 1                # navigation (by pins)
-c2_g = 2*np.sqrt(1)
+c1_g = 3                # navigation (by pins)
+c2_g = 0*np.sqrt(1)
+
 
 #%% Kronrcker product (demo)
 # ------------------------
@@ -305,8 +307,9 @@ def compute_cmd_g(states_q, states_p, targets, targets_v, k_node, pin_matrix):
 # select pins
 def select_pins(states_q):
     pin_matrix = np.zeros((states_q.shape[1],states_q.shape[1]))
-    pin_matrix[0,0]=1
-    pin_matrix[3,3]=1
+    index = random.randint(0,states_q.shape[1])-1
+    pin_matrix[index,index]=1
+    
     return pin_matrix
 
 def compute_cmd(states_q, states_p, obstacles, walls, targets, targets_v, k_node, pin_matrix):
