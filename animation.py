@@ -21,14 +21,14 @@ tail = 20
 zoom = 1    # do you want to adjust frames with motion? [0 = no, 1 = yes, 2 = fixed (set below), 3 = fixed_zoom (set below) ]
 
 #def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, walls_plots, showObs, centroid_all, f, r_desired, tactic_type):
-def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, walls_plots, showObs, centroid_all, f, tactic_type):
+def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, walls_plots, showObs, centroid_all, f, tactic_type, pin_matrix):
 
     
     # pull out positions
     # ------------------
     nVeh = states_all.shape[2]
     nObs = obstacles_all.shape[2]
-    r_copy = 2 # used to import this
+    r_copy = 3 # used to import this
     
     # intermediate variables
     # ----------------------
@@ -87,7 +87,7 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, walls
     # labels
     # ------
         
-    if tactic_type == 'reynolds' or tactic_type == 'saber' or tactic_type == 'starling':
+    if tactic_type == 'reynolds' or tactic_type == 'saber' or tactic_type == 'starling' or tactic_type == 'pinning':
         mode='Mode: Flocking type: '+tactic_type
     elif tactic_type == 'circle':
         mode = 'Mode: Dynamic Encirclement'
@@ -335,9 +335,15 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, walls
             
             # if using pinning control
             # ------------------------
-            if j == 0:
-                temp1.set_color('r')
-                temp2.set_color('r')
+            if tactic_type == 'pinning':
+            
+                if pin_matrix[j,j] == 1:
+                    temp1.set_color('g')
+                    temp2.set_color('g') 
+                else:
+                    temp1.set_color('b')
+                    temp2.set_color('b')
+                
                 
                  
         # build obstacles

@@ -50,6 +50,8 @@ plt.style.use('default')
 #plt.style.available
 #plt.style.use('Solarize_Light2')
 import modeller
+import pinning_tools
+
 
 
 
@@ -58,24 +60,26 @@ import modeller
 Ti      =   0         # initial time
 Tf      =   60        # final time 
 Ts      =   0.02      # sample time
-nVeh    =   25         # number of vehicles
-iSpread =   10         # initial spread of vehicles
-tSpeed  =   0.05         # speed of target
-rVeh    =   1         # physical radius of vehicle 
+nVeh    =   15         # number of vehicles
+iSpread =   50         # initial spread of vehicles
+tSpeed  =   0.01         # speed of target
+rVeh    =   0.5         # physical radius of vehicle 
 
-tactic_type = 'saber'     
+tactic_type = 'pinning'     
                 # reynolds = Reynolds flocking + Olfati-Saber obstacle
                 # saber = Olfati-Saber flocking
                 # starling = swar like starlings 
                 # circle = encirclement
                 # lemni = dynamic lemniscate
+                # pinning = pinning control
                 # statics = static shapes (prototype)
 
 # if using reynolds, need make target an obstacle 
 if tactic_type == 'reynolds':
     targetObs = 1
 else:
-    targetObs = 0         
+    targetObs = 0    
+
     
 # do we want to build a model in real time?
 #real_time_model = 'yes'
@@ -91,6 +95,8 @@ state[4,:] = 0                                                      # velocity (
 state[5,:] = 0                                                      # velocity (vz)
 centroid = tools.centroid(state[0:3,:].transpose())
 centroid_v = tools.centroid(state[3:6,:].transpose())
+# select a pin (for pinning control)
+pin_matrix = pinning_tools.select_pins(state[0:3,:])
 
 # Commands
 # --------
@@ -102,8 +108,8 @@ cmd[2] = np.random.rand(1,nVeh)-0.5      # command (z)
 # Targets
 # -------
 targets = 4*(np.random.rand(6,nVeh)-0.5)
-targets[0,:] = -0.5 #5*(np.random.rand(1,nVeh)-0.5)
-targets[1,:] = -0.5 #5*(np.random.rand(1,nVeh)-0.5)
+targets[0,:] = 0 #5*(np.random.rand(1,nVeh)-0.5)
+targets[1,:] = 0 #5*(np.random.rand(1,nVeh)-0.5)
 targets[2,:] = 15
 targets[3,:] = 0
 targets[4,:] = 0
@@ -129,7 +135,7 @@ if nObs == 0 and targetObs == 1:
     nObs = 1
 
 obstacles = np.zeros((4,nObs))
-oSpread = iSpread
+oSpread = 7
 
 # manual (comment out if random)
 # obstacles[0,:] = 0    # position (x)
@@ -139,18 +145,18 @@ oSpread = iSpread
 
 #random (comment this out if manual)
 if nObs != 0:
-    obstacles[0,:] = oSpread*(np.random.rand(1,nObs)-0.5)-1                   # position (x)
-    obstacles[1,:] = oSpread*(np.random.rand(1,nObs)-0.5)-1                   # position (y)
-    obstacles[2,:] = oSpread*(np.random.rand(1,nObs)-0.5)+15                  # position (z)
+    obstacles[0,:] = oSpread*(np.random.rand(1,nObs)-0.5)+targets[0,0]                   # position (x)
+    obstacles[1,:] = oSpread*(np.random.rand(1,nObs)-0.5)+targets[1,0]                   # position (y)
+    obstacles[2,:] = oSpread*(np.random.rand(1,nObs)-0.5)+targets[2,0]                  # position (z)
     #obstacles[2,:] = np.maximum(oSpread*(np.random.rand(1,nObs)-0.5),14)     # position (z)
-    obstacles[3,:] = np.random.rand(1,nObs)+2                             # radii of obstacle(s)
+    obstacles[3,:] = np.random.rand(1,nObs)+1                             # radii of obstacle(s)
 
 # manually make the first target an obstacle
 if targetObs == 1:
     obstacles[0,0] = targets[0,0]     # position (x)
     obstacles[1,0] = targets[1,0]     # position (y)
     obstacles[2,0] = targets[2,0]     # position (z)
-    obstacles[3,0] = 0.5              # radii of obstacle(s)
+    obstacles[3,0] = 5              # radii of obstacle(s)
 
 # Walls/Floors 
 # - these are defined manually as planes
@@ -220,8 +226,6 @@ lemni_all[0,:]          = lemni
 if tactic_type == 'lemni':
     targets = lemni_tools.check_targets(targets)
     
-
-
 #%% start the simulation
 # --------------------
 
@@ -229,17 +233,17 @@ while round(t,3) < Tf:
     
     # Evolve the target
     # -----------------
-    targets[0,:] = 10*np.sin(tSpeed*t)                 # targets[0,:] + tSpeed*0.002
-    targets[1,:] = 10*np.sin(tSpeed*t)*np.cos(tSpeed*t)  # targets[1,:] + tSpeed*0.005
-    targets[2,:] = 10*np.sin(tSpeed*t)*np.sin(tSpeed*t)  # targets[2,:] + tSpeed*0.0005
+    targets[0,:] = 2*np.sin(tSpeed*t)                 # targets[0,:] + tSpeed*0.002
+    targets[1,:] = 2*np.sin(tSpeed*t)*np.cos(tSpeed*t)  # targets[1,:] + tSpeed*0.005
+    targets[2,:] = 2*np.sin(tSpeed*t)*np.sin(tSpeed*t)+15  # targets[2,:] + tSpeed*0.0005
     
     # For pinning application, we set the first agent as the "pin",
     # which means all other targets have to be set to the pin
     # comment out for non-pinning control
     # ------------------------------------------------------------
-    targets[0,1::] = state[0,0]
-    targets[1,1::] = state[1,0]
-    targets[2,1::] = state[2,0]
+    #targets[0,1::] = state[0,0]
+    #targets[1,1::] = state[1,0]
+    #targets[2,1::] = state[2,0]
     
     
     # Update the obstacles (if required)
@@ -280,7 +284,7 @@ while round(t,3) < Tf:
     # --------------------
          
     #if flocking
-    if tactic_type == 'reynolds' or tactic_type == 'saber' or tactic_type == 'starling':
+    if tactic_type == 'reynolds' or tactic_type == 'saber' or tactic_type == 'starling' or tactic_type == 'pinning':
         trajectory = targets 
     
     # if encircling
@@ -333,7 +337,7 @@ while round(t,3) < Tf:
 # ---------------------------------
 #print('here1')
 showObs = 1 # (0 = don't show obstacles, 1 = show obstacles, 2 = show obstacles + floors/walls)
-ani = animation.animateMe(Ts, t_all, states_all, cmds_all, targets_all[:,0:3,:], obstacles_all, walls_plots, showObs, centroid_all, f_all, tactic_type)    
+ani = animation.animateMe(Ts, t_all, states_all, cmds_all, targets_all[:,0:3,:], obstacles_all, walls_plots, showObs, centroid_all, f_all, tactic_type, pin_matrix)    
 
 #%% Save stuff
 
