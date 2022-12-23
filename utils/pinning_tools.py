@@ -31,8 +31,8 @@ import numpy as np
 import random
 
 # data set for testing 
-data = np.load('Data/state_25.npy') # 25 nodes, 6 states [x,y,z,vx,vy,vz]
-
+#data = np.load('state_21.npy') # 21 nodes, 6 states [x,y,z,vx,vy,vz]
+#np.random.seed(2)
 
 #%% Hyperparameters
 # -----------------
@@ -307,8 +307,12 @@ def compute_cmd_g(states_q, states_p, targets, targets_v, k_node, pin_matrix):
 # -----------
 def select_pins(states_q):
     pin_matrix = np.zeros((states_q.shape[1],states_q.shape[1]))
-    #index = random.randint(0,states_q.shape[1])-1
-    index = 1
+    index = random.randint(0,states_q.shape[1])-1
+    #index = 1
+    pin_matrix[index,index]=1
+    index = random.randint(0,states_q.shape[1])-1
+    pin_matrix[index,index]=1
+    index = random.randint(0,states_q.shape[1])-1
     pin_matrix[index,index]=1
 
     return pin_matrix
@@ -342,27 +346,88 @@ def func_ctrlb(Ai,Bi):
         ctrlb = np.hstack((ctrlb,A**i*B))
     return ctrlb
         
-        
-    
+#%% build Graph (as dictionary)
+# ----------------------------
+def build_graph(data, r):
+    G = {}
+    nNodes  = data.shape[1]     # number of agents (nodes)
+    # for each node
+    for i in range(0,nNodes):
+        # create a set of edges
+        set_i = set()
+        # search through neighbours (will add itself)
+        for j in range(0,nNodes):
+            # compute distance
+            dist = np.linalg.norm(data[0:3,j]-data[0:3,i])
+            # if close enough
+            if dist < r:
+                # add to set_i
+                set_i.add(j)
+        G[i] = set_i
+    return G
+
+#%% find connected components
+# --------------------------
+
+def find_connected_components(G):
+    # this will record all components 
+    all_components = []
+    # initialize set of visited nodes 
+    visited = set()
+    # search through each node in the graph
+    for node in G:
+        # if it hasn't already been visited
+        if node not in visited:
+            # find the (sub)components
+            component, visited = find_connected_subcomponents(G, node, visited)
+            all_components.append(component)
+    return all_components
+
+
+def find_connected_subcomponents(G, node, visited):
+        component = []
+        nodes = set([node])
+        while nodes:
+            # pop() pulls out the node and removes it from the list
+            node = nodes.pop()
+            # updated the listed of visited nodes
+            visited.add(node)
+            # the graph tells us what edges to add to this (sub)component
+            nodes = nodes or G[node] - visited
+            # add the nodes to this (sub)component 
+            component.append(node)
+        return component, visited
+
+
          
          
 # %%try it
 # ---------
-r = 2         # range to be considered a neighbour 
-gamma   = 1   # coupling strength
-rho     = 1   # pinning strength
-A = compute_adj_matrix(data, r)  
-D = compute_deg_matrix(data, r)   
-L = compute_lap_matrix(A,D)   
-nComp = compute_comp(L) 
+# import numpy as np
+# #data = np.load('state_21.npy') # 21 nodes, 6 states [x,y,z,vx,vy,vz]
+# data = states_all[0,:,:]
 
-B = np.zeros((A.shape[0]))
-B[1] = 1
-# compute controlability matrix
-Ctrlb = func_ctrlb(A,B)
-# find rank 
-rank = np.linalg.matrix_rank(Ctrlb)
-trace= np.matrix.trace(Ctrlb)
+# r = 6         # range to be considered a neighbour 
+
+# G = build_graph(data, r)
+# components = find_connected_components(G)
+# print(components)
+
+#%%%
+# gamma   = 1   # coupling strength
+# rho     = 1   # pinning strength
+# A = compute_adj_matrix(data, r)  
+# D = compute_deg_matrix(data, r)   
+# L = compute_lap_matrix(A,D)   
+# nComp = compute_comp(L) 
+
+# B = np.zeros((A.shape[0]))
+# B[1] = 1
+# # compute controlability matrix
+# Ctrlb = func_ctrlb(A,B)
+# # find rank 
+# rank = np.linalg.matrix_rank(Ctrlb)
+# trace= np.matrix.trace(Ctrlb)
 
 # # let us set pin (manually)
 # # -------------------------
@@ -370,10 +435,5 @@ trace= np.matrix.trace(Ctrlb)
 # P[0,0] = 1
 # P[5,5] = 1
 
-# # compute augmented connectivity 
-# L_aug, aug_connectivity, aug_connectivity_i = compute_aug_lap_matrix(L,P,gamma,rho)
 
-
-
-    
     

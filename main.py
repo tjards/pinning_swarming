@@ -30,28 +30,24 @@ New additions in progress. Aim: Use swarm+MPC to get the pin to guide centroid t
 
 #%% Import stuff
 # --------------
+
+# official packages 
 #from scipy.integrate import ode
 import numpy as np
-import animation 
-import dynamics_node as node
-#import tools as tools
-#import encirclement_tools as encircle_tools
-import ctrl_tactic as tactic 
 import pickle 
-#import quaternions as quat
-#import lemni_tools 
-#import swarm_metrics 
-#import staticShapes_tools as statics
-#import starling_tools
 import matplotlib.pyplot as plt
 #plt.style.use('dark_background')
 #plt.style.use('classic')
 plt.style.use('default')
 #plt.style.available
 #plt.style.use('Solarize_Light2')
-#import modeller
-#import pinning_tools
 
+# from root folder
+import animation 
+import dynamics_node as node
+import ctrl_tactic as tactic 
+
+# utilities 
 from utils import encirclement_tools as encircle_tools
 from utils import staticShapes_tools as statics
 from utils import pinning_tools, lemni_tools, starling_tools, swarm_metrics, tools, modeller
@@ -61,10 +57,10 @@ from utils import pinning_tools, lemni_tools, starling_tools, swarm_metrics, too
 # ------------------
 np.random.seed(1)
 Ti      =   0         # initial time
-Tf      =   10        # final time 
+Tf      =   90        # final time 
 Ts      =   0.02      # sample time
 nVeh    =   21         # number of vehicles
-iSpread =   30         # initial spread of vehicles
+iSpread =   50         # initial spread of vehicles
 tSpeed  =   0         # speed of target
 rVeh    =   1         # physical radius of vehicle 
 
@@ -210,8 +206,8 @@ obstacles_all       = np.zeros([nSteps, len(obstacles), nObs])
 centroid_all        = np.zeros([nSteps, len(centroid), 1])
 f_all               = np.ones(nSteps)
 lemni_all           = np.zeros([nSteps, nVeh])
-metrics_order_all   = np.zeros((nSteps,5))
-metrics_order       = np.zeros((1,5))
+metrics_order_all   = np.zeros((nSteps,7))
+metrics_order       = np.zeros((1,7))
 
 # store the initial conditions
 t_all[0]                = Ti
@@ -313,7 +309,7 @@ while round(t,3) < Tf:
     centroid_v              = tools.centroid(state[3:6,:].transpose())
     swarm_prox              = tools.sigma_norm(centroid.ravel()-targets[0:3,0])
     metrics_order[0,0]      = swarm_metrics.order(states_p)
-    metrics_order[0,1:5]    = swarm_metrics.separation(states_q,targets[0:3,:],obstacles)
+    metrics_order[0,1:7]    = swarm_metrics.separation(states_q,targets[0:3,:],obstacles)
         
     # load the updated centroid states (x,v)
     # ---------------------------------------
@@ -348,11 +344,14 @@ ani = animation.animateMe(Ts, t_all, states_all, cmds_all, targets_all[:,0:3,:],
 
 fig, ax = plt.subplots()
 ax.plot(t_all[4::],metrics_order_all[4::,1],'-b')
-ax.plot(t_all[4::],metrics_order_all[4::,1]+metrics_order_all[4::,2],':b')
-ax.plot(t_all[4::],metrics_order_all[4::,1]-metrics_order_all[4::,2],':b')
-
-ax.set(xlabel='time (s)', ylabel='mean distance from target [m]',
-       title='Distance from Target')
+ax.plot(t_all[4::],metrics_order_all[4::,5],':b')
+ax.plot(t_all[4::],metrics_order_all[4::,6],':b')
+ax.fill_between(t_all[4::], metrics_order_all[4::,5], metrics_order_all[4::,6], color = 'blue', alpha = 0.1)
+#note: can include region to note shade using "where = Y2 < Y1
+ax.set(xlabel='Time [s]', ylabel='Mean Distance to Target [m]',
+       title='Convergence to Target')
+#ax.plot([70, 70], [100, 250], '--b', lw=1)
+#ax.hlines(y=5, xmin=Ti, xmax=Tf, linewidth=1, color='r', linestyle='--')
 ax.grid()
 
 #fig.savefig("test.png")
