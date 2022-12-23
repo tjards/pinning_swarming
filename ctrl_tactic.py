@@ -23,6 +23,7 @@ import numpy as np
 
 from utils import pinning_tools, reynolds_tools, saber_tools, lemni_tools, starling_tools  
 from utils import encirclement_tools as encircle_tools
+from utils import staticShapes_tools as statics
 
 #%% Tactic Command Equations 
 # ------------------------  
@@ -35,6 +36,7 @@ def commands(states_q, states_p, obstacles, walls, targets, targets_v, targets_e
     u_enc = np.zeros((3,states_q.shape[1]))     # encirclement 
     u_statics = np.zeros((3,states_q.shape[1])) # statics
     cmd_i = np.zeros((3,states_q.shape[1]))     # store the commands
+    pin_matrix = np.zeros((states_q.shape[1],states_q.shape[1])) # store pins 
         
     # if doing Reynolds, reorder the agents 
     if tactic_type == 'reynolds':
@@ -42,7 +44,8 @@ def commands(states_q, states_p, obstacles, walls, targets, targets_v, targets_e
         
     # if doing pinning control, select pins
     if tactic_type == 'pinning':
-        pin_matrix = pinning_tools.select_pins(states_q) 
+        #pin_matrix = pinning_tools.select_pins(states_q) 
+        pin_matrix = pinning_tools.select_pins_components(states_q) 
         
     # for each vehicle/node in the network
     for k_node in range(states_q.shape[1]): 
@@ -143,7 +146,7 @@ def commands(states_q, states_p, obstacles, walls, targets, targets_v, targets_e
 
     cmd = cmd_i    
     
-    return cmd, params
+    return cmd, params, pin_matrix
 
 
 

@@ -21,7 +21,7 @@ tail = 20
 zoom = 1    # do you want to adjust frames with motion? [0 = no, 1 = yes, 2 = fixed (set below), 3 = fixed_zoom (set below) ]
 
 #def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, walls_plots, showObs, centroid_all, f, r_desired, tactic_type):
-def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, walls_plots, showObs, centroid_all, f, tactic_type, pin_matrix):
+def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, walls_plots, showObs, centroid_all, f, tactic_type, pins_all):
 
     
     # pull out positions
@@ -339,7 +339,8 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, walls
             # ------------------------
             if tactic_type == 'pinning':
             
-                if pin_matrix[j,j] == 1:
+                #if pin_matrix[j,j] == 1:
+                if pins_all[i*numFrames,j,j] == 1:
                     temp1.set_color('r')
                     temp2.set_color('r') 
                 else:

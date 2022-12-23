@@ -54,10 +54,10 @@ from utils import pinning_tools, lemni_tools, starling_tools, swarm_metrics, too
 # ------------------
 np.random.seed(1)
 Ti      =   0         # initial time
-Tf      =   180        # final time 
+Tf      =   60        # final time 
 Ts      =   0.02      # sample time
 nVeh    =   15         # number of vehicles
-iSpread =   50         # initial spread of vehicles
+iSpread =   30         # initial spread of vehicles
 tSpeed  =   0.001         # speed of target
 rVeh    =   1         # physical radius of vehicle 
 
@@ -205,6 +205,7 @@ f_all               = np.ones(nSteps)
 lemni_all           = np.zeros([nSteps, nVeh])
 metrics_order_all   = np.zeros((nSteps,7))
 metrics_order       = np.zeros((1,7))
+pins_all            = np.zeros([nSteps, nVeh, nVeh])
 
 # store the initial conditions
 t_all[0]                = Ti
@@ -217,6 +218,7 @@ f_all[0]                = f
 metrics_order_all[0,:]  = metrics_order
 lemni                   = np.zeros([1, nVeh])
 lemni_all[0,:]          = lemni
+pins_all[0,:,:]         = pin_matrix       
 
 # we need to move the 'target' for mobbing (a type of lemniscate)
 if tactic_type == 'lemni':
@@ -270,6 +272,7 @@ while round(t,3) < Tf:
     f_all[i]                = f
     lemni_all[i,:]          = lemni
     metrics_order_all[i,:]  = metrics_order
+    pins_all[i,:,:]         = pin_matrix  
     
     # Increment 
     # ---------
@@ -327,13 +330,13 @@ while round(t,3) < Tf:
             
     #%% Compute the commads (next step)
     # --------------------------------       
-    cmd, params = tactic.commands(states_q, states_p, obstacles_plus, walls, targets[0:3,:], targets[3:6,:], trajectory[0:3,:], trajectory[3:6,:], swarm_prox, tactic_type, centroid, params)
+    cmd, params, pin_matrix = tactic.commands(states_q, states_p, obstacles_plus, walls, targets[0:3,:], targets[3:6,:], trajectory[0:3,:], trajectory[3:6,:], swarm_prox, tactic_type, centroid, params)
        
 #%% Produce animation of simulation
 # ---------------------------------
 #print('here1')
 showObs = 1 # (0 = don't show obstacles, 1 = show obstacles, 2 = show obstacles + floors/walls)
-ani = animation.animateMe(Ts, t_all, states_all, cmds_all, targets_all[:,0:3,:], obstacles_all, walls_plots, showObs, centroid_all, f_all, tactic_type, pin_matrix)    
+ani = animation.animateMe(Ts, t_all, states_all, cmds_all, targets_all[:,0:3,:], obstacles_all, walls_plots, showObs, centroid_all, f_all, tactic_type, pins_all)    
 
 
 #%% Produce plot

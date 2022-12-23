@@ -398,20 +398,41 @@ def find_connected_subcomponents(G, node, visited):
             component.append(node)
         return component, visited
 
+#%% 
 
-         
+def select_pins_components(states_q):
+    # initialize the pins
+    pin_matrix = np.zeros((states_q.shape[1],states_q.shape[1]))
+    # build a graph
+    G = build_graph(states_q, r)
+    # fund the components of the graph
+    components = find_connected_components(G)
+    
+    for i in range(0,len(components)):
+        # just take the first in the component for now
+        index = components[i][0]
+        # note: later, optimize this selection (i.e. instead of [0], use Grammian)
+        pin_matrix[index,index]=1
+
+    return pin_matrix
+    
+
+
          
 # %%try it
 # ---------
 # import numpy as np
 # #data = np.load('state_21.npy') # 21 nodes, 6 states [x,y,z,vx,vy,vz]
-# data = states_all[0,:,:]
+#data = states_all[0,:,:]
+#r = 6         # range to be considered a neighbour 
 
-# r = 6         # range to be considered a neighbour 
+#P, c = select_pins_components(data,r)
 
 # G = build_graph(data, r)
 # components = find_connected_components(G)
 # print(components)
+
+
 
 #%%%
 # gamma   = 1   # coupling strength
