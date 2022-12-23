@@ -12,8 +12,8 @@ Created on Thu Feb 18 14:20:17 2021
 import numpy as np
 import pickle 
 import matplotlib.pyplot as plt
-import quaternions as quat
-import encirclement_tools as encircle_tools
+from utils import quaternions as quat
+from utils import encirclement_tools as encircle_tools
 
 
 #%% Parameters

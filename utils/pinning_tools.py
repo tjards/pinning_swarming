@@ -38,10 +38,10 @@ data = np.load('Data/state_25.npy') # 25 nodes, 6 states [x,y,z,vx,vy,vz]
 # -----------------
 
 # key ranges 
-d       = 7             # lattice scale 
-r       = 1.2*7    #20*d           # range at which neighbours can be sensed 
-d_prime = 0.6*7     #0.5 #0.6*d    # desired separation 
-r_prime = 1.2*0.6*7     #2*2*d_prime   # range at which obstacles can be sensed
+d       = 5             # lattice scale 
+r       = 1.2*d    #20*d           # range at which neighbours can be sensed 
+d_prime = 0.6*d     #0.5 #0.6*d    # desired separation 
+r_prime = 1.2*d_prime     #2*2*d_prime   # range at which obstacles can be sensed
 
 # gains
 c1_a = 1
@@ -221,7 +221,7 @@ def compute_cmd_a(states_q, states_p, targets, targets_v, k_node):
             # compute the euc distance between them
             dist = np.linalg.norm(states_q[:,k_node]-states_q[:,k_neigh])
             # if it is within the interaction range
-            if dist < r_a:
+            if dist < r:
                 # compute the interaction command
                 u_int[:,k_node] += c1_a*phi_a(states_q[:,k_node],states_q[:,k_neigh],r_a, d_a)*n_ij(states_q[:,k_node],states_q[:,k_neigh]) + c2_a*a_ij(states_q[:,k_node],states_q[:,k_neigh],r_a)*(states_p[:,k_neigh]-states_p[:,k_node]) 
 
@@ -307,13 +307,10 @@ def compute_cmd_g(states_q, states_p, targets, targets_v, k_node, pin_matrix):
 # -----------
 def select_pins(states_q):
     pin_matrix = np.zeros((states_q.shape[1],states_q.shape[1]))
-    index = random.randint(0,states_q.shape[1])-1
+    #index = random.randint(0,states_q.shape[1])-1
+    index = 1
     pin_matrix[index,index]=1
-    index = random.randint(0,states_q.shape[1])-1
-    pin_matrix[index,index]=1
-    index = random.randint(0,states_q.shape[1])-1
-    pin_matrix[index,index]=1
-    
+
     return pin_matrix
 
 # consolidated control signals

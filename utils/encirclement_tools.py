@@ -9,7 +9,7 @@ This module implements dynamic encirclement
 """
 
 import numpy as np
-import quaternions as quat
+from utils import quaternions as quat
 
 # delta_phi_desired = 2Pi/N
 

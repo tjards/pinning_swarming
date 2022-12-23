@@ -13,13 +13,16 @@ Created on Mon Jan  4 12:45:55 2021
 """
 
 import numpy as np
-import reynolds_tools
-import saber_tools
-import encirclement_tools as encircle_tools
-import lemni_tools
-import staticShapes_tools as statics
-import starling_tools
-import pinning_tools
+# import reynolds_tools
+# import saber_tools
+# import encirclement_tools as encircle_tools
+# import lemni_tools
+# import staticShapes_tools as statics
+# import starling_tools
+#import pinning_tools
+
+from utils import pinning_tools, reynolds_tools, saber_tools, lemni_tools, starling_tools  
+from utils import encirclement_tools as encircle_tools
 
 #%% Tactic Command Equations 
 # ------------------------  

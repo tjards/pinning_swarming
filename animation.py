@@ -28,7 +28,7 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, walls
     # ------------------
     nVeh = states_all.shape[2]
     nObs = obstacles_all.shape[2]
-    r_copy = 1.5*7 # used to import this
+    #r_copy = 0 # used to import this
     
     # intermediate variables
     # ----------------------
@@ -231,7 +231,7 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, walls
         # else: 
         #     r_ = r_copy*2        # just to help visualize vehicle interactions
         
-        r_ = r_copy
+        r_ = 1.5*5
         
         for j in range (0, nVeh):
         
@@ -249,6 +249,8 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, walls
             # search through each neighbour
             #for k_neigh in range(pos.shape[1]):
             for k_neigh in range(0,nVeh):
+                
+                dist = 1000
                 # except for itself (duh):
                 if j != k_neigh:
                     # compute the euc distance between them
@@ -284,15 +286,15 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, walls
                     #print('myself')                                            
                                                          
             
-            #temp_lat.set_data(x_lat[:,j], y_lat[:,j])
-            #temp_lat.set_3d_properties(z_lat[:,j])  
+            temp_lat.set_data(x_lat[:,j], y_lat[:,j])
+            temp_lat.set_3d_properties(z_lat[:,j])  
         #temp_lat.set_data(x_lat[:,j], y_lat[:,j])
         #temp_lat.set_3d_properties(z_lat[:,j])  
 
         #temp_lat.set_data(x_lat[:,:].flatten(), y_lat[:,:].flatten())
         #temp_lat.set_3d_properties(z_lat[:,:].flatten())   
-        temp_lat.set_data(x_lat[:,:].transpose().flatten(), y_lat[:,:].transpose().flatten())
-        temp_lat.set_3d_properties(z_lat[:,:].transpose().flatten())
+        #temp_lat.set_data(x_lat[:,:].transpose().flatten(), y_lat[:,:].transpose().flatten())
+        #temp_lat.set_3d_properties(z_lat[:,:].transpose().flatten())
   
         # plot states... etc
         # ------------------

@@ -15,8 +15,8 @@ Note: this is only sort of working and is very inefficient
 import numpy as np
 import pickle 
 import matplotlib.pyplot as plt
-import quaternions as quat
-import encirclement_tools as encircle_tools
+from utils import quaternions as quat
+from utils import encirclement_tools as encircle_tools
 
 
 #%% Parameters

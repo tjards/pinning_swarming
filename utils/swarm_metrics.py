@@ -40,11 +40,11 @@ def order(states_p):
 
 def separation(states_q,target_q,obstacles):
     
-    # distance from targets
+    # distance from targets or agents
     # ---------------------
     # note: replace target_q with states_q to get separation between agents
-    seps=cdist(states_q.transpose(), np.reshape(target_q[:,0],(-1,1)).transpose())
-    #seps=cdist(states_q.transpose(), states_q.transpose())    
+    #seps=cdist(states_q.transpose(), np.reshape(target_q[:,0],(-1,1)).transpose())
+    seps=cdist(states_q.transpose(), states_q.transpose())    
     vals = np.unique(seps[np.where(seps!=0)])
     means = np.mean(vals)
     varis = np.var(vals)

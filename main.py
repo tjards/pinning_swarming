@@ -34,14 +34,14 @@ New additions in progress. Aim: Use swarm+MPC to get the pin to guide centroid t
 import numpy as np
 import animation 
 import dynamics_node as node
-import tools as tools
-import encirclement_tools as encircle_tools
+#import tools as tools
+#import encirclement_tools as encircle_tools
 import ctrl_tactic as tactic 
 import pickle 
 #import quaternions as quat
-import lemni_tools 
-import swarm_metrics 
-import staticShapes_tools as statics
+#import lemni_tools 
+#import swarm_metrics 
+#import staticShapes_tools as statics
 #import starling_tools
 import matplotlib.pyplot as plt
 #plt.style.use('dark_background')
@@ -49,21 +49,24 @@ import matplotlib.pyplot as plt
 plt.style.use('default')
 #plt.style.available
 #plt.style.use('Solarize_Light2')
-import modeller
-import pinning_tools
+#import modeller
+#import pinning_tools
 
-
+from utils import encirclement_tools as encircle_tools
+from utils import staticShapes_tools as statics
+from utils import pinning_tools, lemni_tools, starling_tools, swarm_metrics, tools, modeller
 
 
 #%% Setup Simulation
 # ------------------
+np.random.seed(1)
 Ti      =   0         # initial time
-Tf      =   180        # final time 
+Tf      =   10        # final time 
 Ts      =   0.02      # sample time
-nVeh    =   23         # number of vehicles
-iSpread =   40         # initial spread of vehicles
-tSpeed  =   0.03         # speed of target
-rVeh    =   0.5         # physical radius of vehicle 
+nVeh    =   21         # number of vehicles
+iSpread =   30         # initial spread of vehicles
+tSpeed  =   0         # speed of target
+rVeh    =   1         # physical radius of vehicle 
 
 tactic_type = 'pinning'     
                 # reynolds = Reynolds flocking + Olfati-Saber obstacle
@@ -135,7 +138,7 @@ if nObs == 0 and targetObs == 1:
     nObs = 1
 
 obstacles = np.zeros((4,nObs))
-oSpread = 7
+oSpread = 20
 
 # manual (comment out if random)
 # obstacles[0,:] = 0    # position (x)
@@ -156,7 +159,7 @@ if targetObs == 1:
     obstacles[0,0] = targets[0,0]     # position (x)
     obstacles[1,0] = targets[1,0]     # position (y)
     obstacles[2,0] = targets[2,0]     # position (z)
-    obstacles[3,0] = 5              # radii of obstacle(s)
+    obstacles[3,0] = 2              # radii of obstacle(s)
 
 # Walls/Floors 
 # - these are defined manually as planes
@@ -288,7 +291,7 @@ while round(t,3) < Tf:
         trajectory = targets 
     
     # if encircling
-    if tactic_type == 'circle': 
+    if tactic_type == 'circle':
         trajectory, _ = encircle_tools.encircle_target(targets, state)
     
     # if lemniscating
@@ -338,6 +341,22 @@ while round(t,3) < Tf:
 #print('here1')
 showObs = 1 # (0 = don't show obstacles, 1 = show obstacles, 2 = show obstacles + floors/walls)
 ani = animation.animateMe(Ts, t_all, states_all, cmds_all, targets_all[:,0:3,:], obstacles_all, walls_plots, showObs, centroid_all, f_all, tactic_type, pin_matrix)    
+
+
+#%% Produce plot
+# --------------
+
+fig, ax = plt.subplots()
+ax.plot(t_all[4::],metrics_order_all[4::,1],'-b')
+ax.plot(t_all[4::],metrics_order_all[4::,1]+metrics_order_all[4::,2],':b')
+ax.plot(t_all[4::],metrics_order_all[4::,1]-metrics_order_all[4::,2],':b')
+
+ax.set(xlabel='time (s)', ylabel='mean distance from target [m]',
+       title='Distance from Target')
+ax.grid()
+
+#fig.savefig("test.png")
+plt.show()
 
 #%% Save stuff
 
