@@ -15,9 +15,6 @@ Each vehicle makes its own decisions about where to go based on its relative pos
 
 Created on Tue Dec 22 11:48:18 2020
 
-
-
-
 New additions in progress. Aim: Use swarm+MPC to get the pin to guide centroid to target, vice itself
 
 - implements MPC-based trajectory planning (started: 11 Dec 2022)
@@ -57,11 +54,11 @@ from utils import pinning_tools, lemni_tools, starling_tools, swarm_metrics, too
 # ------------------
 np.random.seed(1)
 Ti      =   0         # initial time
-Tf      =   90        # final time 
+Tf      =   180        # final time 
 Ts      =   0.02      # sample time
-nVeh    =   21         # number of vehicles
+nVeh    =   15         # number of vehicles
 iSpread =   50         # initial spread of vehicles
-tSpeed  =   0         # speed of target
+tSpeed  =   0.001         # speed of target
 rVeh    =   1         # physical radius of vehicle 
 
 tactic_type = 'pinning'     
