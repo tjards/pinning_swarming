@@ -116,7 +116,7 @@ def phi_b(q_i, q_ik, d_b):
 #%% Compute the Adjacency Matrix
 # ------------------------------
 # A = {a_ij} s.t. 1 if i,j are neighbours, 0 if not
-def compute_adj_matrix(data,r):
+def compute_adj_matrix(data):
     # initialize
     nNodes  = data.shape[1]             # number of agents (nodes)
     A       = np.zeros((nNodes,nNodes)) # initialize adjacency matrix as zeros
@@ -141,7 +141,7 @@ def compute_adj_matrix(data,r):
 #%% Compute the Degree Matrix
 # ------------------------------
 # D = diag{d1,d2,...dN}
-def compute_deg_matrix(data,r):
+def compute_deg_matrix(data):
     # initialize
     nNodes  = data.shape[1]             # number of agents (nodes)
     D       = np.zeros((nNodes,nNodes)) # initialize degree matrix as zeros
@@ -348,7 +348,7 @@ def func_ctrlb(Ai,Bi):
         
 #%% build Graph (as dictionary)
 # ----------------------------
-def build_graph(data, r):
+def build_graph(data):
     G = {}
     nNodes  = data.shape[1]     # number of agents (nodes)
     # for each node
@@ -363,10 +363,12 @@ def build_graph(data, r):
             if dist < r:
                 # add to set_i
                 set_i.add(j)
+            #else:
+            #    print("debug: ", i," is ", dist, "from ", j)
         G[i] = set_i
     return G
 
-#%% find connected components
+#%% find connected components (note: this doesnt work. try off Adjacency Matrix)
 # --------------------------
 
 def find_connected_components(G):
@@ -404,7 +406,7 @@ def select_pins_components(states_q):
     # initialize the pins
     pin_matrix = np.zeros((states_q.shape[1],states_q.shape[1]))
     # build a graph
-    G = build_graph(states_q, r)
+    G = build_graph(states_q)
     # fund the components of the graph
     components = find_connected_components(G)
     
@@ -422,14 +424,12 @@ def select_pins_components(states_q):
 # %%try it
 # ---------
 # import numpy as np
-# #data = np.load('state_21.npy') # 21 nodes, 6 states [x,y,z,vx,vy,vz]
+#data = np.load('state_15.npy') # 21 nodes, 6 states [x,y,z,vx,vy,vz]
 #data = states_all[0,:,:]
 #r = 6         # range to be considered a neighbour 
-
 #P, c = select_pins_components(data,r)
-
-# G = build_graph(data, r)
-# components = find_connected_components(G)
+#G = build_graph(data)
+#components = find_connected_components(G)
 # print(components)
 
 
@@ -437,10 +437,10 @@ def select_pins_components(states_q):
 #%%%
 # gamma   = 1   # coupling strength
 # rho     = 1   # pinning strength
-# A = compute_adj_matrix(data, r)  
-# D = compute_deg_matrix(data, r)   
-# L = compute_lap_matrix(A,D)   
-# nComp = compute_comp(L) 
+#A = compute_adj_matrix(data)  
+#D = compute_deg_matrix(data)   
+#L = compute_lap_matrix(A,D)   
+#nComp = compute_comp(L) 
 
 # B = np.zeros((A.shape[0]))
 # B[1] = 1
