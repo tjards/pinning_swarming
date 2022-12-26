@@ -389,18 +389,18 @@ def find_connected_components_A(A):
                 visited.append(candidate)                   # it has how been visited 
                 subcandidates = np.nonzero(A[:,candidate].ravel()==1)[0].tolist()
                 component.append(candidate)
-                component.sort()
+                #component.sort()
                 candidates.extend(list(set(subcandidates)-set(candidates)-set(visited))) # add the unique nodes          
             all_components.append(component)
     return all_components
 
 
-data = np.load('state_25b.npy')
-A = compute_adj_matrix(data) 
-D = compute_deg_matrix(data)   
-L = compute_lap_matrix(A,D)   
-nComp = compute_comp(L) 
-all_components = find_connected_components_A(A)
+#data = np.load('state_25b.npy')
+#A = compute_adj_matrix(data) 
+#D = compute_deg_matrix(data)   
+#L = compute_lap_matrix(A,D)   
+#nComp = compute_comp(L) 
+#all_components = find_connected_components_A(A)
         
 
 
@@ -442,9 +442,10 @@ def select_pins_components(states_q):
     # initialize the pins
     pin_matrix = np.zeros((states_q.shape[1],states_q.shape[1]))
     # build a graph
-    G = build_graph(states_q)
+    #G = build_graph(states_q)
+    A = compute_adj_matrix(states_q)
     # fund the components of the graph
-    components = find_connected_components(G)
+    components = find_connected_components_A(A)
     
     for i in range(0,len(components)):
         # just take the first in the component for now
