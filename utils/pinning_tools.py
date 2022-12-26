@@ -368,8 +368,44 @@ def build_graph(data):
         G[i] = set_i
     return G
 
+
+
+#%% find connected components
+# -------------------------
+
+# accepts a symetric adjacency matrix
+def find_connected_components_A(A):
+    all_components = []                                     # stores all connected components
+    visited = []                                            # stores all visisted nodes
+    for node in range(0,A.shape[1]):                        # search all nodes (breadth)
+        if node not in visited:                             # exclude nodes already visited
+            component       = []                            # stores component nodes
+            candidates = np.nonzero(A[node,:].ravel()==1)[0].tolist()    # create a set of candidates from neighbours 
+            component.append(node)
+            visited.append(node)
+            candidates = list(set(candidates)-set(visited))
+            while candidates:                               # now search depth
+                candidate = candidates.pop(0)               # grab a candidate 
+                visited.append(candidate)                   # it has how been visited 
+                subcandidates = np.nonzero(A[:,candidate].ravel()==1)[0].tolist()
+                component.append(candidate)
+                component.sort()
+                candidates.extend(list(set(subcandidates)-set(candidates)-set(visited))) # add the unique nodes          
+            all_components.append(component)
+    return all_components
+
+
+data = np.load('state_25b.npy')
+A = compute_adj_matrix(data) 
+D = compute_deg_matrix(data)   
+L = compute_lap_matrix(A,D)   
+nComp = compute_comp(L) 
+all_components = find_connected_components_A(A)
+        
+
+
 #%% find connected components (note: this doesnt work. try off Adjacency Matrix)
-# --------------------------
+#--------------------------
 
 def find_connected_components(G):
     # this will record all components 

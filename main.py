@@ -54,7 +54,7 @@ from utils import pinning_tools, lemni_tools, starling_tools, swarm_metrics, too
 # ------------------
 #np.random.seed(1)
 Ti      =   0         # initial time
-Tf      =   50        # final time 
+Tf      =   10        # final time 
 Ts      =   0.02      # sample time
 nVeh    =   25         # number of vehicles
 iSpread =   30         # initial spread of vehicles
