@@ -21,6 +21,7 @@ Preliminaries:
 Created on Tue Dec 20 13:32:11 2022
 
 References:
+    https://arxiv.org/pdf/1611.06485.pdf
     http://kth.diva-portal.org/smash/get/diva2:681041/FULLTEXT01.pdf
 
 @author: tjards
@@ -337,13 +338,15 @@ def compute_cmd(centroid, states_q, states_p, obstacles, walls, targets, targets
 
 #%% compute the controlability matrix
 # ---------------------------------
-def func_ctrlb(Ai,Bi):
+def func_ctrlb(Ai,Bi,horizon):
     A = np.mat(Ai)
     B = np.mat(Bi).transpose()
-    n = A.shape[0]
+    n = horizon
+    #n = A.shape[0]
     ctrlb = B
     for i in range(1,n):
-        ctrlb = np.hstack((ctrlb,A**i*B))
+        #ctrlb = np.hstack((ctrlb,A**i*B))
+        ctrlb = np.hstack((ctrlb,np.dot(A**i,B)))
     return ctrlb
         
 #%% build Graph (as dictionary)
@@ -403,48 +406,18 @@ def find_connected_components_A(A):
 #all_components = find_connected_components_A(A)
         
 
-
-#%% find connected components (note: this doesnt work. try off Adjacency Matrix)
-#--------------------------
-
-def find_connected_components(G):
-    # this will record all components 
-    all_components = []
-    # initialize set of visited nodes 
-    visited = set()
-    # search through each node in the graph
-    for node in G:
-        # if it hasn't already been visited
-        if node not in visited:
-            # find the (sub)components
-            component, visited = find_connected_subcomponents(G, node, visited)
-            all_components.append(component)
-    return all_components
-
-
-def find_connected_subcomponents(G, node, visited):
-        component = []
-        nodes = set([node])
-        while nodes:
-            # pop() pulls out the node and removes it from the list
-            node = nodes.pop()
-            # updated the listed of visited nodes
-            visited.add(node)
-            # the graph tells us what edges to add to this (sub)component
-            nodes = nodes or G[node] - visited
-            # add the nodes to this (sub)component 
-            component.append(node)
-        return component, visited
-
-#%% 
+#%% select pins for each component 
+# --------------------------------
 
 def select_pins_components(states_q):
+    
     # initialize the pins
     pin_matrix = np.zeros((states_q.shape[1],states_q.shape[1]))
-    # build a graph
-    #G = build_graph(states_q)
+    
+    # compute adjacency matrix
     A = compute_adj_matrix(states_q)
-    # fund the components of the graph
+    
+    # find the components of the graph
     components = find_connected_components_A(A)
     
     for i in range(0,len(components)):
@@ -456,6 +429,48 @@ def select_pins_components(states_q):
     return pin_matrix
     
 
+def ctrb_gramian(A,D,node,horizon):
+    
+    # define B
+    B = np.zeros((A.shape[0]))
+    #B = np.ones((A.shape[0]))
+    B[node] = 1
+    
+    # discretize (zero order hold)
+    #Ad = np.eye(A.shape[0],A.shape[0])+A*dt
+    #Bd = B*dt
+    
+    # IAW with "transmission" from Appendix of Nozari et al. (2018)
+    #D_c_in = compute_deg_matrix(A)
+    A_dyn = np.dot(A,np.linalg.inv(D))
+    
+    #alpha = 1
+    #A_dyn = np.exp(alpha*(-np.eye(A.shape[0],A.shape[0])+A))
+    
+    # compute
+    C = func_ctrlb(A_dyn,B, horizon)
+    W = np.dot(C,C.transpose())
+    
+    #test
+    rank = np.linalg.matrix_rank(C)
+    if rank == C.shape[1]:
+        ctrlable = True
+    else:
+        ctrlable = False
+        
+    
+    trace = np.matrix.trace(W)
+    
+    return C, rank, ctrlable, W, trace
+          
+data = np.load('state_15.npy')
+A = compute_adj_matrix(data)
+D = compute_deg_matrix(data) 
+all_components = find_connected_components_A(A)
+pins = select_pins_components(data) 
+
+
+a_C, a_rank, a_ctrlable, a_W, a_trace = ctrb_gramian(A,D,0,10)
 
          
 # %%try it
