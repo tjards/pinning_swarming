@@ -8,18 +8,13 @@ This project implements an autonomous, decentralized swarming strategies includi
     - Starling flocking
     - Dynamic Encirclement 
     - Leminiscatic Arching
+    - Pinning Control
     - Static Shapes (prototype)
 
 The strategies requires no human invervention once the target is selected and all agents rely on local knowledge only. 
 Each vehicle makes its own decisions about where to go based on its relative position to other vehicles
 
 Created on Tue Dec 22 11:48:18 2020
-
-New additions in progress. Aim: Use swarm+MPC to get the pin to guide centroid to target, vice itself
-
-- implements MPC-based trajectory planning (started: 11 Dec 2022)
-
-
 
 @author: tjards
 
@@ -54,11 +49,11 @@ from utils import pinning_tools, lemni_tools, starling_tools, swarm_metrics, too
 # ------------------
 np.random.seed(0)
 Ti      =   0         # initial time
-Tf      =   90        # final time 
+Tf      =   40        # final time 
 Ts      =   0.02      # sample time
-nVeh    =   20         # number of vehicles
-iSpread =   50         # initial spread of vehicles
-tSpeed  =   0.002         # speed of target
+nVeh    =   7         # number of vehicles
+iSpread =   10         # initial spread of vehicles
+tSpeed  =   0.001         # speed of target
 rVeh    =   1         # physical radius of vehicle 
 
 tactic_type = 'pinning'     
@@ -75,7 +70,6 @@ if tactic_type == 'reynolds':
     targetObs = 1
 else:
     targetObs = 0    
-
     
 # do we want to build a model in real time?
 #real_time_model = 'yes'
@@ -92,7 +86,7 @@ state[5,:] = 0                                                      # velocity (
 centroid = tools.centroid(state[0:3,:].transpose())
 centroid_v = tools.centroid(state[3:6,:].transpose())
 # select a pin (for pinning control)
-pin_matrix = pinning_tools.select_pins(state[0:3,:])
+pin_matrix = pinning_tools.select_pins_components(state[0:3,:],'gramian')
 
 # Commands
 # --------

@@ -4,10 +4,6 @@
 
 This module implements some useful tools for pinning control 
 
-Things to do:
-    
-- how to properly selected a pinned agent (leader or pin selection)
-
 Preliminaries:
     - Let us consider V nodes (vertices, agents)
     - Define E is a set of edges (links) as the set of ordered pairs
@@ -20,29 +16,30 @@ Preliminaries:
 
 Created on Tue Dec 20 13:32:11 2022
 
-References:
+Some related work:
+    
     https://arxiv.org/pdf/1611.06485.pdf
     http://kth.diva-portal.org/smash/get/diva2:681041/FULLTEXT01.pdf
+    https://ieeexplore-ieee-org.proxy.queensu.ca/stamp/stamp.jsp?tp=&arnumber=6762966
+    https://ieeexplore-ieee-org.proxy.queensu.ca/document/9275901
 
 @author: tjards
     
 """
 
+#%% Import stuff
+# --------------
 import numpy as np
 import random
-
-# data set for testing 
-#data = np.load('state_21.npy') # 21 nodes, 6 states [x,y,z,vx,vy,vz]
-#np.random.seed(2)
 
 #%% Hyperparameters
 # -----------------
 
 # key ranges 
 d       = 5             # lattice scale 
-r       = 1.2*d    #20*d           # range at which neighbours can be sensed 
-d_prime = 0.6*d     #0.5 #0.6*d    # desired separation 
-r_prime = 1.2*d_prime     #2*2*d_prime   # range at which obstacles can be sensed
+r       = 1.2*d         # range at which neighbours can be sensed 
+d_prime = 0.6*d         # desired separation 
+r_prime = 1.2*d_prime   # range at which obstacles can be sensed
 
 # gains
 c1_a = 1
@@ -66,10 +63,8 @@ a   = 5
 b   = 5
 c   = np.divide(np.abs(a-b),np.sqrt(4*a*b)) 
 eps = 0.1
-#eps = 0.5
 h   = 0.2
 pi  = 3.141592653589793
-
 
 def sigma_norm(z):    
     norm_sig = (1/eps)*(np.sqrt(1+eps*np.linalg.norm(z)**2)-1)
@@ -228,7 +223,6 @@ def compute_cmd_a(states_q, states_p, targets, targets_v, k_node):
 
     return u_int[:,k_node] 
 
-
 # use saber flocking obstacle avoidance command
 # ---------------------------------------------
 def compute_cmd_b(states_q, states_p, obstacles, walls, k_node):
@@ -294,19 +288,15 @@ def compute_cmd_g(states_q, states_p, targets, targets_v, k_node, pin_matrix):
     # initialize 
     u_nav = np.zeros((3,states_q.shape[1]))     # navigation
 
-    # select pins
-    #pin_matrix = select_pins(states_q)
-
     # Navigation term 
     # ---------------------------
     u_nav[:,k_node] = - pin_matrix[k_node,k_node]*c1_g*sigma_1(states_q[:,k_node]-targets[:,k_node])- pin_matrix[k_node,k_node]*c2_g*(states_p[:,k_node] - targets_v[:,k_node])
   
     return u_nav[:,k_node]
 
-
-# select pins
-# -----------
-def select_pins(states_q):
+# select pins randomly
+# --------------------
+def select_pins_random(states_q):
     pin_matrix = np.zeros((states_q.shape[1],states_q.shape[1]))
     index = random.randint(0,states_q.shape[1])-1
     #index = 1
@@ -371,12 +361,8 @@ def build_graph(data):
         G[i] = set_i
     return G
 
-
-
 #%% find connected components
 # -------------------------
-
-# accepts a symetric adjacency matrix
 def find_connected_components_A(A):
     all_components = []                                     # stores all connected components
     visited = []                                            # stores all visisted nodes
@@ -397,18 +383,8 @@ def find_connected_components_A(A):
             all_components.append(component)
     return all_components
 
-
-#data = np.load('state_25b.npy')
-#A = compute_adj_matrix(data) 
-#D = compute_deg_matrix(data)   
-#L = compute_lap_matrix(A,D)   
-#nComp = compute_comp(L) 
-#all_components = find_connected_components_A(A)
-        
-
 #%% select pins for each component 
 # --------------------------------
-
 def select_pins_components(states_q, method):
     
     # initialize the pins
@@ -464,9 +440,9 @@ def select_pins_components(states_q, method):
                         index_i = components[i][j]
                         # pin this one
                         pin_matrix[index_i,index_i]=1
-                    
-             
+                                 
     else:
+        
         for i in range(0,len(components)):
             # just take the first in the component for now
             index = components[i][0]
@@ -475,7 +451,6 @@ def select_pins_components(states_q, method):
 
     return pin_matrix
     
-
 #%% compute the controlability Gram trace
 # -------------------------------------
 def compute_gram_trace(A,D,node,horizon):
@@ -512,51 +487,8 @@ def compute_gram_trace(A,D,node,horizon):
     
     return ctrlable, trace
           
-#data = np.load('state_25b.npy')
-#A = compute_adj_matrix(data)
-#D = compute_deg_matrix(data) 
-#all_components = find_connected_components_A(A)
-#pins = select_pins_components(data, 'gramian') 
+ 
 
-
-
-
-
-         
-# %%try it
-# ---------
-# import numpy as np
-#data = np.load('state_15.npy') # 21 nodes, 6 states [x,y,z,vx,vy,vz]
-#data = states_all[0,:,:]
-#r = 6         # range to be considered a neighbour 
-#P, c = select_pins_components(data,r)
-#G = build_graph(data)
-#components = find_connected_components(G)
-# print(components)
-
-
-
-#%%%
-# gamma   = 1   # coupling strength
-# rho     = 1   # pinning strength
-#A = compute_adj_matrix(data)  
-#D = compute_deg_matrix(data)   
-#L = compute_lap_matrix(A,D)   
-#nComp = compute_comp(L) 
-
-# B = np.zeros((A.shape[0]))
-# B[1] = 1
-# # compute controlability matrix
-# Ctrlb = func_ctrlb(A,B)
-# # find rank 
-# rank = np.linalg.matrix_rank(Ctrlb)
-# trace= np.matrix.trace(Ctrlb)
-
-# # let us set pin (manually)
-# # -------------------------
-# P = np.zeros((data.shape[1],data.shape[1])) # initialize Pin Matrix
-# P[0,0] = 1
-# P[5,5] = 1
 
 
     
