@@ -409,7 +409,7 @@ def find_connected_components_A(A):
 #%% select pins for each component 
 # --------------------------------
 
-def select_pins_components(states_q):
+def select_pins_components(states_q, method):
     
     # initialize the pins
     pin_matrix = np.zeros((states_q.shape[1],states_q.shape[1]))
@@ -420,16 +420,65 @@ def select_pins_components(states_q):
     # find the components of the graph
     components = find_connected_components_A(A)
     
-    for i in range(0,len(components)):
-        # just take the first in the component for now
-        index = components[i][0]
-        # note: later, optimize this selection (i.e. instead of [0], use Grammian)
-        pin_matrix[index,index]=1
+    if method == 'gramian':
+        
+        # for each component
+        for i in range(0,len(components)):
+            
+            # find the adjacency matrix+ of this component 
+            states_i = states_q[:,components[i]]
+            A = compute_adj_matrix(states_i)
+            D = compute_deg_matrix(states_i)
+            
+            # find gramian trace (i.e. energy demand) of first component
+            index_i = components[i][0]
+            
+            # if this is a lone agent
+            if len(components[i])==1:
+                # pin it
+                pin_matrix[index_i,index_i]=1
+                
+            else:
+                    
+                #ctrlable, trace_i = compute_gram_trace(A,D,index_i,A.shape[1])
+                ctrlable, trace_i = compute_gram_trace(A,D,0,A.shape[1])
+                # set a default pin
+                pin_matrix[index_i,index_i]=1
+                # note: add a test for controlability here
+    
+                # cycle through the remaining agents in the component
+                for j in range(1,len(components[i])): 
+                    
+                    #print('component: ',i, 'item: ',j,'agent: ',components[i][j])
+                    
+                    # find trace (set horizon to num of agents, for now)
+                    #ctrlable, trace = compute_gram_trace(A,D,components[i][j],A.shape[1])
+                    ctrlable, trace = compute_gram_trace(A,D,j,A.shape[1])
+                    
+                    # take the smallest energy value
+                    if trace < trace_i:
+                        # make this the new benchmark
+                        trace_i = trace
+                        # de-pin the previous
+                        pin_matrix[index_i,index_i]=0
+                        index_i = components[i][j]
+                        # pin this one
+                        pin_matrix[index_i,index_i]=1
+                    
+             
+    else:
+        for i in range(0,len(components)):
+            # just take the first in the component for now
+            index = components[i][0]
+            # note: later, optimize this selection (i.e. instead of [0], use Grammian)
+            pin_matrix[index,index]=1
 
     return pin_matrix
     
 
-def ctrb_gramian(A,D,node,horizon):
+#%% compute the controlability Gram trace
+# -------------------------------------
+def compute_gram_trace(A,D,node,horizon):
     
     # define B
     B = np.zeros((A.shape[0]))
@@ -441,7 +490,7 @@ def ctrb_gramian(A,D,node,horizon):
     #Bd = B*dt
     
     # IAW with "transmission" from Appendix of Nozari et al. (2018)
-    #D_c_in = compute_deg_matrix(A)
+    #D_c_in = compute_deg_matrix(A) # inmport this in
     A_dyn = np.dot(A,np.linalg.inv(D))
     
     #alpha = 1
@@ -451,26 +500,27 @@ def ctrb_gramian(A,D,node,horizon):
     C = func_ctrlb(A_dyn,B, horizon)
     W = np.dot(C,C.transpose())
     
-    #test
+    #test controlability
     rank = np.linalg.matrix_rank(C)
     if rank == C.shape[1]:
         ctrlable = True
     else:
         ctrlable = False
         
-    
+    # the trace is inversely prop to the energy required to control network
     trace = np.matrix.trace(W)
     
-    return C, rank, ctrlable, W, trace
+    return ctrlable, trace
           
-data = np.load('state_15.npy')
-A = compute_adj_matrix(data)
-D = compute_deg_matrix(data) 
-all_components = find_connected_components_A(A)
-pins = select_pins_components(data) 
+#data = np.load('state_25b.npy')
+#A = compute_adj_matrix(data)
+#D = compute_deg_matrix(data) 
+#all_components = find_connected_components_A(A)
+#pins = select_pins_components(data, 'gramian') 
 
 
-a_C, a_rank, a_ctrlable, a_W, a_trace = ctrb_gramian(A,D,0,10)
+
+
 
          
 # %%try it

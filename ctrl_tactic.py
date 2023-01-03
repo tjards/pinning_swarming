@@ -45,7 +45,7 @@ def commands(states_q, states_p, obstacles, walls, targets, targets_v, targets_e
     # if doing pinning control, select pins
     if tactic_type == 'pinning':
         #pin_matrix = pinning_tools.select_pins(states_q) 
-        pin_matrix = pinning_tools.select_pins_components(states_q) 
+        pin_matrix = pinning_tools.select_pins_components(states_q, 'gramian') 
         
     # for each vehicle/node in the network
     for k_node in range(states_q.shape[1]): 
