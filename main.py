@@ -52,13 +52,13 @@ from utils import pinning_tools, lemni_tools, starling_tools, swarm_metrics, too
 
 #%% Setup Simulation
 # ------------------
-np.random.seed(1)
+np.random.seed(0)
 Ti      =   0         # initial time
-Tf      =   120        # final time 
+Tf      =   90        # final time 
 Ts      =   0.02      # sample time
-nVeh    =   15         # number of vehicles
+nVeh    =   20         # number of vehicles
 iSpread =   50         # initial spread of vehicles
-tSpeed  =   0.001         # speed of target
+tSpeed  =   0.002         # speed of target
 rVeh    =   1         # physical radius of vehicle 
 
 tactic_type = 'pinning'     
