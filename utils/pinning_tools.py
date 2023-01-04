@@ -37,7 +37,7 @@ import random
 
 # key ranges 
 d       = 5             # lattice scale 
-r       = 1.2*d         # range at which neighbours can be sensed 
+r       = 1.5*d         # range at which neighbours can be sensed 
 d_prime = 0.6*d         # desired separation 
 r_prime = 1.2*d_prime   # range at which obstacles can be sensed
 

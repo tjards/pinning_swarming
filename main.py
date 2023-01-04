@@ -49,7 +49,7 @@ from utils import pinning_tools, lemni_tools, starling_tools, swarm_metrics, too
 # ------------------
 np.random.seed(1)
 Ti      =   0         # initial time
-Tf      =   90        # final time 
+Tf      =   60        # final time 
 Ts      =   0.02      # sample time
 nVeh    =   7         # number of vehicles
 iSpread =   50         # initial spread of vehicles
@@ -199,7 +199,7 @@ obstacles_all       = np.zeros([nSteps, len(obstacles), nObs])
 centroid_all        = np.zeros([nSteps, len(centroid), 1])
 f_all               = np.ones(nSteps)
 lemni_all           = np.zeros([nSteps, nVeh])
-nMetrics            = 9 # there are 9 positions being used.    
+nMetrics            = 12 # there are 11 positions being used.    
 metrics_order_all   = np.zeros((nSteps,nMetrics))
 metrics_order       = np.zeros((1,nMetrics))
 pins_all            = np.zeros([nSteps, nVeh, nVeh])
@@ -310,6 +310,7 @@ while round(t,3) < Tf:
     metrics_order[0,0]      = swarm_metrics.order(states_p)
     metrics_order[0,1:7]    = swarm_metrics.separation(states_q,targets[0:3,:],obstacles)
     metrics_order[0,7:9]    = swarm_metrics.energy(cmd)
+    metrics_order[0,9:12]   = swarm_metrics.spacing(states_q)
         
     # load the updated centroid states (x,v)
     # ---------------------------------------
@@ -398,6 +399,38 @@ ax2.text(Tf-Tf*0.3, 0.1, 'Total Energy: ' + str(round(total_e,1)), style='italic
 ax.grid()
 #fig.savefig("test.png")
 plt.show()
+
+#%% Spacing
+# ---------
+
+fig, ax = plt.subplots()
+
+# set forst axis
+ax.plot(t_all[4::],metrics_order_all[4::,9],'-g')
+ax.plot(t_all[4::],metrics_order_all[4::,11],'--g')
+ax.fill_between(t_all[4::], metrics_order_all[4::,9], metrics_order_all[4::,11], color = 'green', alpha = 0.1)
+
+#note: can include region to note shade using "where = Y2 < Y1
+ax.set(xlabel='Time [s]', title='Spacing between Agents [m]')
+ax.set_ylabel('Mean Distance [m]', color = 'g')
+ax.set_xlim([0, Tf])
+ax.set_ylim([0, 20])
+total_e = np.sqrt(np.sum(cmds_all**2))
+
+# set second axis
+ax2 = ax.twinx()
+ax2.set_xlim([0, Tf])
+ax2.set_ylim([0, 2*nVeh])
+ax2.plot(t_all[4::],metrics_order_all[4::,10], color='tab:blue', linestyle = '--')
+ax2.set_ylabel('Number of Connections', color='tab:blue')
+#ax2.invert_yaxis()
+
+ax.grid()
+#fig.savefig("test.png")
+plt.show()
+
+
+
 
 #%% Save stuff
 

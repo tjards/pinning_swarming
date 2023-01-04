@@ -44,7 +44,7 @@ def order(states_p):
             
     return order
 
-#%% Separation
+#%% Separation (targets/obstacles)
 # ------------
 def separation(states_q,target_q,obstacles):
     
@@ -80,6 +80,26 @@ def centroid(points):
     sum_z = np.sum(points[:, 2])
     centroid = np.array((sum_x/length, sum_y/length, sum_z/length), ndmin = 2)
     return centroid.transpose() 
+
+#%% Spacing (between agents)
+def spacing(states_q):
+    
+    # visibility radius
+    radius = 1.5*5
+    
+    seps=cdist(states_q.transpose(), states_q.transpose())    
+    vals = np.unique(seps[np.where(seps!=0)])
+    vals_t = vals # even those out of range
+    vals = np.unique(vals[np.where(vals<radius)])
+    
+    # if empty, return zero
+    if len(vals) == 0:
+        vals = np.array([0])
+    
+    return vals.mean(), len(vals), vals_t.mean()
+    
+
+
 
 #%% Energy
 # --------
