@@ -6,6 +6,12 @@ This program computes some useful swarm metrics
 
 @author: tjards
 
+
+Try this:
+    A New Metric for the Analysis of Swarms Using Potential Fields
+    https://ieeexplore.ieee.org/document/8502021
+
+
 """
 
 import numpy as np
@@ -32,7 +38,9 @@ def order(states_p):
                     if norm_i != 0:
                         order += np.divide(np.dot(states_p[:,k_node],states_p[:,k_neigh]),norm_i**2)
             # average
-            order = np.divide(order,N*(N-1))
+            #order = np.divide(order,N*(N-1))
+            #order = np.divide(order,(N-1))
+        order = np.divide(order,N*(N-1))
             
     return order
 
@@ -77,10 +85,10 @@ def centroid(points):
 # --------
 def energy(cmd):
     
-    energy_mean = np.sqrt(np.sum(cmd**2))
+    energy_total = np.sqrt(np.sum(cmd**2))
     energy_var =  np.var(np.sqrt((cmd**2)))
        
-    return energy_mean, energy_var
+    return energy_total, energy_var
 
     
 

@@ -49,9 +49,9 @@ from utils import pinning_tools, lemni_tools, starling_tools, swarm_metrics, too
 # ------------------
 np.random.seed(1)
 Ti      =   0         # initial time
-Tf      =   30        # final time 
+Tf      =   90        # final time 
 Ts      =   0.02      # sample time
-nVeh    =   15         # number of vehicles
+nVeh    =   7         # number of vehicles
 iSpread =   50         # initial spread of vehicles
 tSpeed  =   0.001         # speed of target
 rVeh    =   1         # physical radius of vehicle 
@@ -83,8 +83,10 @@ state[2,:] = np.maximum((iSpread*np.random.rand(1,nVeh)-0.5),2)+15  # position (
 state[3,:] = 0                                                      # velocity (vx)
 state[4,:] = 0                                                      # velocity (vy)
 state[5,:] = 0                                                      # velocity (vz)
-centroid = tools.centroid(state[0:3,:].transpose())
-centroid_v = tools.centroid(state[3:6,:].transpose())
+#centroid = tools.centroid(state[0:3,:].transpose())
+#centroid_v = tools.centroid(state[3:6,:].transpose())
+centroid = swarm_metrics.centroid(state[0:3,:].transpose())
+centroid_v = swarm_metrics.centroid(state[3:6,:].transpose())
 # select a pin (for pinning control)
 pin_matrix = pinning_tools.select_pins_components(state[0:3,:],'gramian')
 
@@ -300,8 +302,10 @@ while round(t,3) < Tf:
     
     # Compute metrics
     # ---------------
-    centroid                = tools.centroid(state[0:3,:].transpose())
-    centroid_v              = tools.centroid(state[3:6,:].transpose())
+    #centroid                = tools.centroid(state[0:3,:].transpose())
+    #centroid_v              = tools.centroid(state[3:6,:].transpose())
+    centroid                = swarm_metrics.centroid(state[0:3,:].transpose())
+    centroid_v              = swarm_metrics.centroid(state[3:6,:].transpose())
     swarm_prox              = tools.sigma_norm(centroid.ravel()-targets[0:3,0])
     metrics_order[0,0]      = swarm_metrics.order(states_p)
     metrics_order[0,1:7]    = swarm_metrics.separation(states_q,targets[0:3,:],obstacles)
@@ -362,27 +366,36 @@ fig, ax = plt.subplots()
 
 # set forst axis
 ax.plot(t_all[4::],metrics_order_all[4::,7],'-g')
-ax.plot(t_all[4::],metrics_order_all[4::,7]+metrics_order_all[4::,8],':g')
-ax.plot(t_all[4::],metrics_order_all[4::,7]-metrics_order_all[4::,8],':g')
-ax.fill_between(t_all[4::], metrics_order_all[4::,7]+metrics_order_all[4::,8], metrics_order_all[4::,7]-metrics_order_all[4::,8], color = 'green', alpha = 0.1)
+#ax.plot(t_all[4::],metrics_order_all[4::,7]+metrics_order_all[4::,8],':g')
+#ax.plot(t_all[4::],metrics_order_all[4::,7]-metrics_order_all[4::,8],':g')
+ax.fill_between(t_all[4::], metrics_order_all[4::,7], color = 'green', alpha = 0.1)
+
 #note: can include region to note shade using "where = Y2 < Y1
 ax.set(xlabel='Time [s]', title='Energy Consumption')
 ax.set_ylabel('Total Acceleration [m^2]', color = 'g')
+ax.set_xlim([0, Tf])
+ax.set_ylim([0, 10])
 #ax.plot([70, 70], [100, 250], '--b', lw=1)
 #ax.hlines(y=5, xmin=Ti, xmax=Tf, linewidth=1, color='r', linestyle='--')
 total_e = np.sqrt(np.sum(cmds_all**2))
-ax.text(3, 15, 'Total Energy: ' + str(round(total_e,1)), style='italic',
-        bbox={'facecolor': 'green', 'alpha': 0.1, 'pad': 1})
+# ax.text(3, 2, 'Total Energy: ' + str(round(total_e,1)), style='italic',
+#         bbox={'facecolor': 'green', 'alpha': 0.1, 'pad': 1})
 
 
 # set second axis
 ax2 = ax.twinx()
-ax2.plot(t_all[4::],metrics_order_all[4::,0],'-b')
+ax2.set_xlim([0, Tf])
+ax2.set_ylim([0, 1])
+ax2.plot(t_all[4::],1-metrics_order_all[4::,0], color='tab:blue', linestyle = '--')
+#ax2.fill_between(t_all[4::], 1-metrics_order_all[4::,0], color = 'tab:blue', alpha = 0.1)
 ax2.set(title='Energy Consumption')
-ax2.set_ylabel('Order of the Swarm', color = 'b')
+ax2.set_ylabel('Disorder of the Swarm', color='tab:blue')
+#ax2.invert_yaxis()
+
+ax2.text(Tf-Tf*0.3, 0.1, 'Total Energy: ' + str(round(total_e,1)), style='italic',
+        bbox={'facecolor': 'green', 'alpha': 0.1, 'pad': 1})
 
 ax.grid()
-
 #fig.savefig("test.png")
 plt.show()
 
