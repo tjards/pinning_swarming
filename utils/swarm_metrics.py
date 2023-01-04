@@ -15,7 +15,6 @@ from scipy.spatial.distance import cdist
 
 #%% Order
 # -------
-
 def order(states_p):
 
     order = 0
@@ -37,7 +36,8 @@ def order(states_p):
             
     return order
 
-
+#%% Separation
+# ------------
 def separation(states_q,target_q,obstacles):
     
     # distance from targets or agents
@@ -63,7 +63,8 @@ def separation(states_q,target_q,obstacles):
     
     return means, varis, means_obs, varis_obs, maxes, mines
     
-    
+#%% Centroid
+# -----------    
 def centroid(points):
     length = points.shape[0]
     sum_x = np.sum(points[:, 0])
@@ -71,4 +72,16 @@ def centroid(points):
     sum_z = np.sum(points[:, 2])
     centroid = np.array((sum_x/length, sum_y/length, sum_z/length), ndmin = 2)
     return centroid.transpose() 
+
+#%% Energy
+# --------
+def energy(cmd):
+    
+    energy_mean = np.sqrt(np.sum(cmd**2))
+    energy_var =  np.var(np.sqrt((cmd**2)))
+       
+    return energy_mean, energy_var
+
+    
+
     

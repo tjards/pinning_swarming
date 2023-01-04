@@ -441,13 +441,16 @@ def select_pins_components(states_q, method):
                         # pin this one
                         pin_matrix[index_i,index_i]=1
                                  
-    else:
+    elif method == 'random':
         
         for i in range(0,len(components)):
             # just take the first in the component for now
             index = components[i][0]
             # note: later, optimize this selection (i.e. instead of [0], use Grammian)
             pin_matrix[index,index]=1
+    else:
+        
+        print('Warning: no pin selected.')
 
     return pin_matrix
     

@@ -47,12 +47,12 @@ from utils import pinning_tools, lemni_tools, starling_tools, swarm_metrics, too
 
 #%% Setup Simulation
 # ------------------
-np.random.seed(0)
+np.random.seed(1)
 Ti      =   0         # initial time
-Tf      =   10        # final time 
+Tf      =   30        # final time 
 Ts      =   0.02      # sample time
-nVeh    =   5         # number of vehicles
-iSpread =   10         # initial spread of vehicles
+nVeh    =   15         # number of vehicles
+iSpread =   50         # initial spread of vehicles
 tSpeed  =   0.001         # speed of target
 rVeh    =   1         # physical radius of vehicle 
 
@@ -197,8 +197,9 @@ obstacles_all       = np.zeros([nSteps, len(obstacles), nObs])
 centroid_all        = np.zeros([nSteps, len(centroid), 1])
 f_all               = np.ones(nSteps)
 lemni_all           = np.zeros([nSteps, nVeh])
-metrics_order_all   = np.zeros((nSteps,7))
-metrics_order       = np.zeros((1,7))
+nMetrics            = 9 # there are 9 positions being used.    
+metrics_order_all   = np.zeros((nSteps,nMetrics))
+metrics_order       = np.zeros((1,nMetrics))
 pins_all            = np.zeros([nSteps, nVeh, nVeh])
 
 # store the initial conditions
@@ -304,6 +305,7 @@ while round(t,3) < Tf:
     swarm_prox              = tools.sigma_norm(centroid.ravel()-targets[0:3,0])
     metrics_order[0,0]      = swarm_metrics.order(states_p)
     metrics_order[0,1:7]    = swarm_metrics.separation(states_q,targets[0:3,:],obstacles)
+    metrics_order[0,7:9]    = swarm_metrics.energy(cmd)
         
     # load the updated centroid states (x,v)
     # ---------------------------------------
@@ -333,9 +335,11 @@ showObs = 1 # (0 = don't show obstacles, 1 = show obstacles, 2 = show obstacles 
 ani = animation.animateMe(Ts, t_all, states_all, cmds_all, targets_all[:,0:3,:], obstacles_all, walls_plots, showObs, centroid_all, f_all, tactic_type, pins_all)    
 
 
-#%% Produce plot
+# Produce plots
 # --------------
 
+#%% Convergence to target 
+#-------------------------
 fig, ax = plt.subplots()
 ax.plot(t_all[4::],metrics_order_all[4::,1],'-b')
 ax.plot(t_all[4::],metrics_order_all[4::,5],':b')
@@ -346,6 +350,37 @@ ax.set(xlabel='Time [s]', ylabel='Mean Distance to Target [m]',
        title='Convergence to Target')
 #ax.plot([70, 70], [100, 250], '--b', lw=1)
 #ax.hlines(y=5, xmin=Ti, xmax=Tf, linewidth=1, color='r', linestyle='--')
+ax.grid()
+
+#fig.savefig("test.png")
+plt.show()
+
+
+#%% Energy
+# ------------
+fig, ax = plt.subplots()
+
+# set forst axis
+ax.plot(t_all[4::],metrics_order_all[4::,7],'-g')
+ax.plot(t_all[4::],metrics_order_all[4::,7]+metrics_order_all[4::,8],':g')
+ax.plot(t_all[4::],metrics_order_all[4::,7]-metrics_order_all[4::,8],':g')
+ax.fill_between(t_all[4::], metrics_order_all[4::,7]+metrics_order_all[4::,8], metrics_order_all[4::,7]-metrics_order_all[4::,8], color = 'green', alpha = 0.1)
+#note: can include region to note shade using "where = Y2 < Y1
+ax.set(xlabel='Time [s]', title='Energy Consumption')
+ax.set_ylabel('Total Acceleration [m^2]', color = 'g')
+#ax.plot([70, 70], [100, 250], '--b', lw=1)
+#ax.hlines(y=5, xmin=Ti, xmax=Tf, linewidth=1, color='r', linestyle='--')
+total_e = np.sqrt(np.sum(cmds_all**2))
+ax.text(3, 15, 'Total Energy: ' + str(round(total_e,1)), style='italic',
+        bbox={'facecolor': 'green', 'alpha': 0.1, 'pad': 1})
+
+
+# set second axis
+ax2 = ax.twinx()
+ax2.plot(t_all[4::],metrics_order_all[4::,0],'-b')
+ax2.set(title='Energy Consumption')
+ax2.set_ylabel('Order of the Swarm', color = 'b')
+
 ax.grid()
 
 #fig.savefig("test.png")
