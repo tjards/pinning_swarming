@@ -47,7 +47,7 @@ from utils import pinning_tools, lemni_tools, starling_tools, swarm_metrics, too
 
 #%% Setup Simulation
 # ------------------
-np.random.seed(1)
+np.random.seed(3)
 Ti      =   0         # initial time
 Tf      =   60        # final time 
 Ts      =   0.02      # sample time
