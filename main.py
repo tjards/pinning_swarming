@@ -49,9 +49,9 @@ from utils import pinning_tools, lemni_tools, starling_tools, swarm_metrics, too
 # ------------------
 np.random.seed(3)
 Ti      =   0         # initial time
-Tf      =   60        # final time 
+Tf      =   90        # final time 
 Ts      =   0.02      # sample time
-nVeh    =   7         # number of vehicles
+nVeh    =   30         # number of vehicles
 iSpread =   50         # initial spread of vehicles
 tSpeed  =   0.001         # speed of target
 rVeh    =   1         # physical radius of vehicle 
@@ -416,13 +416,13 @@ ax.set(xlabel='Time [s]', title='Spacing between Agents [m]')
 ax.set_ylabel('Mean Distance [m]', color = 'g')
 ax.tick_params(axis='y',colors ='green')
 ax.set_xlim([0, Tf])
-ax.set_ylim([0, 20])
+ax.set_ylim([0, 40])
 total_e = np.sqrt(np.sum(cmds_all**2))
 
 # set second axis
 ax2 = ax.twinx()
 ax2.set_xlim([0, Tf])
-ax2.set_ylim([0, 2*nVeh])
+ax2.set_ylim([0, 100])
 ax2.plot(t_all[4::],metrics_order_all[4::,10], color='tab:blue', linestyle = '-')
 ax2.set_ylabel('Number of Connections', color='tab:blue')
 ax2.tick_params(axis='y',colors ='tab:blue')
